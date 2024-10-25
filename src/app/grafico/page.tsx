@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
 
 export default function Grafico() {
@@ -11,7 +10,7 @@ export default function Grafico() {
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
     script.onload = () => {
-      // @ts-ignore
+      // @ts-expect-error TradingView is not typed
       new window.TradingView.widget({
         container_id: 'tradingview_chart',
         width: '100%',

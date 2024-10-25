@@ -22,17 +22,21 @@ export default function Login() {
     const password = formData.get('password') as string;
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
 
       // Redirecionar para a página de chat após o login bem-sucedido
       router.push('/chat');
     } catch (error) {
-      setError('Falha no login. Por favor, verifique suas credenciais.');
+      if (error instanceof Error) {
+        setError(`Falha no login: ${error.message}`);
+      } else {
+        setError('Falha no login. Por favor, verifique suas credenciais.');
+      }
     } finally {
       setIsSubmitting(false);
     }
