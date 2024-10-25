@@ -1,16 +1,36 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import BottomNavigation from '../../components/BottomNavigation';
 
+// Declare TradingView as a global variable
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
+
 export default function Grafico() {
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
     script.onload = () => {
-      // @ts-expect-error TradingView is not typed
+      setScriptLoaded(true);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (scriptLoaded && typeof window.TradingView !== 'undefined') {
       new window.TradingView.widget({
         container_id: 'tradingview_chart',
         width: '100%',
@@ -29,9 +49,8 @@ export default function Grafico() {
         calendar: true,
         news: ['headlines'],
       });
-    };
-    document.body.appendChild(script);
-  }, []);
+    }
+  }, [scriptLoaded]);
 
   return (
     <div className="container mx-auto px-4 p-20 mb-4">
@@ -44,7 +63,11 @@ export default function Grafico() {
         />
       </div>
       
-      <div id="tradingview_chart" className="mb-6"></div>
+      {scriptLoaded ? (
+        <div id="tradingview_chart" className="mb-6"></div>
+      ) : (
+        <div className="mb-6 text-center">Carregando gráfico...</div>
+      )}
 
       <div className="text-center mt-7">
         <button

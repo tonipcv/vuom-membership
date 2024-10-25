@@ -8,11 +8,20 @@ const BottomNavigation = () => {
   const supabase = createClientComponentClient();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Erro ao fazer logout:', error);
-    } else {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Limpar qualquer estado local relacionado à autenticação
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Redirecionar para a página de login
       router.push('/login');
+      
+      // Forçar um hard refresh da página
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
     }
   };
 
@@ -34,7 +43,7 @@ const BottomNavigation = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </Link>
-        <button onClick={handleLogout} className={`text-gray-100 ${pathname === '/login' ? 'text-green-400' : ''}`}>
+        <button onClick={handleLogout} className="text-gray-100">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
