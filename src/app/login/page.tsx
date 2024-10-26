@@ -43,13 +43,14 @@ export default function Login() {
   };
 
   return (
-    <div className="container mx-auto px-4 p-20 mb-4 mt-40">
+    <div className="container mx-auto px-4 py-8 md:py-20 mt-20 md:mt-32 lg:mt-40">
       <div className="flex justify-center mb-8">
         <Image
           src="/ft-icone.png"
           alt="Logo da Empresa"
           width={100}
           height={50}
+          className="w-20 h-auto md:w-24 lg:w-28"
         />
       </div>
       

@@ -5,6 +5,8 @@ import Image from 'next/image';
 // import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // Definindo a interface para o tipo de mensagem
 interface Message {
@@ -14,23 +16,34 @@ interface Message {
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const router = useRouter();
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch('https://servidor-servidor-telegram.dpbdp1.easypanel.host/messages/');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setMessages(data);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/');
+      } else {
+        fetchMessages();
       }
     };
 
-    fetchMessages();
-  }, []);
+    checkUser();
+  }, [router, supabase.auth]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch('https://servidor-servidor-telegram.dpbdp1.easypanel.host/messages/');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -120,20 +133,20 @@ export default function Chat() {
     
     return (
       <div className="bg-gray-900 p-3 rounded-lg text-white">
-        <p className="font-bold text-lg text-green-500">{header.replace('#', '').trim()}</p>
-        <p className="text-sm mt-1">{type}</p>
+        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
+        <p className="text-xs md:text-sm mt-1">{type}</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           <div>
-            <p className="font-semibold text-gray-400">Alvo</p>
-            <p>{alvo.split(':')[1].trim()}</p>
+            <p className="font-semibold text-gray-400 text-xs md:text-sm">Alvo</p>
+            <p className="text-xs md:text-sm">{alvo.split(':')[1].trim()}</p>
           </div>
           <div>
-            <p className="font-semibold text-gray-400">Lucro</p>
-            <p className="text-green-500">{lucro.split(':')[1].trim()}</p>
+            <p className="font-semibold text-gray-400 text-xs md:text-sm">Lucro</p>
+            <p className="text-green-500 text-xs md:text-sm">{lucro.split(':')[1].trim()}</p>
           </div>
           <div>
-            <p className="font-semibold text-gray-400">Período</p>
-            <p>{periodo.split(':')[1].trim()}</p>
+            <p className="font-semibold text-gray-400 text-xs md:text-sm">Período</p>
+            <p className="text-xs md:text-sm">{periodo.split(':')[1].trim()}</p>
           </div>
         </div>
       </div>
@@ -185,12 +198,12 @@ export default function Chat() {
 
     return (
       <div className="bg-gray-900 p-3 rounded-lg text-white">
-        <p className="font-bold text-lg text-green-500">{header.replace('#', '').trim()}</p>
-        {entradaZona && <p className="mt-2">{entradaZona}</p>}
-        {alavancagem && <p className="mt-1">{alavancagem}</p>}
+        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
+        {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
+        {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
         {alvos.length > 0 && (
           <div className="mt-2">
-            <p className="font-semibold text-gray-200">Alvos:</p>
+            <p className="font-semibold text-gray-200 text-xs md:text-sm">Alvos:</p>
             <div className="flex flex-wrap gap-1 mt-1">
               {alvos.map((alvo, index) => (
                 <span 
@@ -203,7 +216,7 @@ export default function Chat() {
             </div>
           </div>
         )}
-        {stoploss && <p className="mt-2 text-gray-200">{stoploss}</p>}
+        {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
       </div>
     );
   };
@@ -221,8 +234,8 @@ export default function Chat() {
 
     return (
       <div className="bg-gray-900 p-3 rounded-lg text-white">
-        <p className="font-bold text-lg text-gray-200">{header.replace('#', '').trim()}</p>
-        <p className="mt-2 text-gray-300">{message}</p>
+        <p className="font-bold text-base md:text-lg text-gray-200">{header.replace('#', '').trim()}</p>
+        <p className="mt-2 text-gray-300 text-xs md:text-sm">{message}</p>
       </div>
     );
   };
@@ -247,7 +260,7 @@ export default function Chat() {
           <div className="bg-black rounded-lg shadow-md p-4 overflow-y-auto" style={{ maxHeight: '60vh' }}>
             {messages.map((message, index) => (
               <div key={index} className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-2">
-                <div>{formatMessage(message.text)}</div>
+                <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
                 <p className="text-gray-400 text-xs mt-1">
                   {formatDate(message.createdAt)}
                 </p>

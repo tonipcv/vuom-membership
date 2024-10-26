@@ -3,7 +3,7 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { supabase } from '../lib/supabase';
+import { supabase } from './lib/supabase';
 import { useRouter } from 'next/navigation';
 
 // Hook personalizado para máscara de telefone
@@ -94,17 +94,18 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-auto justify-center container mx-auto px-4 p-20 mb-4 mt-16">
+    <div className="flex flex-col min-h-screen justify-center container mx-auto px-4 py-8 md:py-20 mt-10">
       <div className="flex justify-center mb-8">
         <Image
           src="/ft-icone.png"
           alt="Logo da Empresa"
-          width={100}
-          height={50}
+          width={80}
+          height={40}
+          className="w-20 h-auto md:w-24 lg:w-28"
         />
       </div>
       
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="max-w-md mx-auto w-full">
         <div className="mb-4">
           <label htmlFor="name" className="block mb-2 text-sm font-bold text-white-700 font-helvetica">Nome</label>
           <input type="text" id="name" name="name" placeholder="Digite seu nome" required className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" />
