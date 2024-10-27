@@ -80,9 +80,6 @@ export default function Login() {
         <Link href="/forgot-password" className="text-white hover:text-white-700">
           Esqueceu a senha?
         </Link>
-        <Link href="/" className="text-white hover:text-white-700">
-          Crie sua conta
-        </Link>
       </div>
     </div>
   );

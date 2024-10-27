@@ -3,7 +3,7 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { supabase } from './lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 
 // Hook personalizado para máscara de telefone
