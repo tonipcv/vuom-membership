@@ -45,9 +45,10 @@ export const useOneSignal = () => {
         setIsSubscribed(false);
         console.log('Usuário cancelou a inscrição');
       } else {
-        const result = await OneSignal.Notifications.requestPermission();
-        console.log('Resultado da solicitação de permissão:', result);
-        if (result === true) {
+        await OneSignal.Notifications.requestPermission();
+        const permission = await OneSignal.Notifications.permission;
+        console.log('Resultado da solicitação de permissão:', permission);
+        if (permission) {
           // Criar ou atualizar o usuário
           await OneSignal.login("USER_EXTERNAL_ID"); // Substitua com o ID real do usuário
           await OneSignal.User.addTag("favorite_team", "Lakers");

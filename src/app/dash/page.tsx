@@ -3,7 +3,6 @@
 'use client';
 
 import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -188,7 +187,8 @@ const formatDate = (dateString: string) => {
   };
 
   const brazilTime = date.toLocaleString('pt-BR', options);
-  const nowBrazil = now.toLocaleString('pt-BR', options);
+  // Remova ou comente a linha abaixo se não estiver usando nowBrazil
+  // const nowBrazil = now.toLocaleString('pt-BR', options);
   
   const [datePart] = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
   const [nowDatePart] = now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
@@ -233,7 +233,7 @@ function DashboardContent() {
         throw new Error('Falha ao carregar mensagens');
       }
       const data = await response.json();
-      setMessages(data.map((msg: any) => ({
+      setMessages(data.map((msg: { text: string; [key: string]: any }) => ({
         ...msg,
         type: determineMessageType(msg.text)
       })));
