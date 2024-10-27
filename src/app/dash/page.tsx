@@ -178,7 +178,6 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
   
-  // Configuração para o fuso horário de Brasília
   const options: Intl.DateTimeFormatOptions = {
     timeZone: 'America/Sao_Paulo',
     hour: '2-digit',
@@ -187,8 +186,6 @@ const formatDate = (dateString: string) => {
   };
 
   const brazilTime = date.toLocaleString('pt-BR', options);
-  // Remova ou comente a linha abaixo se não estiver usando nowBrazil
-  // const nowBrazil = now.toLocaleString('pt-BR', options);
   
   const [datePart] = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
   const [nowDatePart] = now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
