@@ -22,7 +22,7 @@ const usePhoneMask = () => {
   };
 };
 
-export default function Home() {
+export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();

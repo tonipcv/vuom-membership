@@ -21,7 +21,6 @@ export default function Home() {
     checkUser();
   }, [router, supabase.auth]);
 
-  // Retorna um componente vazio ou um loader enquanto verifica o usuário
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-300"></div>

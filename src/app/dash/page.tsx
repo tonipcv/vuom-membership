@@ -407,6 +407,14 @@ function DashboardContent() {
   );
 }
 
+export const metadata = {
+  title: 'Dashboard',
+  description: 'Gerencie sua conta e visualize suas informações',
+  robots: {
+    index: false, // dashboard geralmente é área privada
+  }
+}
+
 export default function Dashboard() {
   return (
     <ThemeProvider>

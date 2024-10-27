@@ -6,8 +6,22 @@ import { ThemeProvider } from '../contexts/ThemeContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Sua Aplicação',
-  description: 'Descrição da sua aplicação',
+  title: {
+    default: 'Futuros Tech',
+    template: '%s | Futuros Tech'
+  },
+  description: 'Tecnologia para traders',
+  keywords: ['Futuros Tech', 'DayTrade', 'DanielKatsu'],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: 'https://app.futurostech.com',
+    siteName: 'Futuros Tech',
+  },
 }
 
 export default function RootLayout({
@@ -17,9 +31,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-      </head>
       <body className={inter.className}>
         <ThemeProvider>
           {children}
