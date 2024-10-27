@@ -407,20 +407,18 @@ function DashboardContent() {
   );
 }
 
+// First, let's create a separate server component for the page
 export const metadata = {
   title: 'Dashboard',
   description: 'Gerencie sua conta e visualize suas informações',
   robots: {
-    index: false, // dashboard geralmente é área privada
+    index: false,
   }
-}
+};
 
-export default function Dashboard() {
-  return (
-    <ThemeProvider>
-      <DashboardContent />
-    </ThemeProvider>
-  );
+// This is the server component that will render the client component
+export default function DashboardPage() {
+  return <Dashboard />;
 }
 
 function MessageCard({ message }: { message: Message }) {
