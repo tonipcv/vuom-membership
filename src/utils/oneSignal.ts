@@ -1,3 +1,4 @@
+/* eslint-disable */
 import OneSignal from 'react-onesignal';
 import React from 'react';
 
