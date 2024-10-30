@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '../contexts/ThemeContext'
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,6 +32,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <Script
+          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={inter.className}>
         <ThemeProvider>
           {children}

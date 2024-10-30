@@ -1,12 +1,11 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import Image from 'next/image';
-// import Link from 'next/link';
 import BottomNavigation from '../../components/BottomNavigation';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import OneSignalInit from '../components/OneSignalInit';
 
 // Definindo a interface para o tipo de mensagem
 interface Message {
@@ -14,7 +13,8 @@ interface Message {
   createdAt: string;
 }
 
-export default function Chat() {
+// Componente Chat separado (sem export default)
+function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const router = useRouter();
   const supabase = createClientComponentClient();
@@ -281,5 +281,15 @@ export default function Chat() {
 
       <BottomNavigation />
     </div>
+  );
+}
+
+// Único export default para o ChatPage
+export default function ChatPage() {
+  return (
+    <>
+      <OneSignalInit />
+      <Chat />
+    </>
   );
 }

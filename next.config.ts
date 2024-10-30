@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/push/onesignal/:path*',
+        destination: '/push/onesignal/:path*',
+      },
+    ];
+  },
   /* outras opções de configuração aqui */
 };
 
