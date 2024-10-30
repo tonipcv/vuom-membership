@@ -5,7 +5,7 @@ import BottomNavigation from '../../components/BottomNavigation';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import OneSignalInit from '../components/OneSignalInit';
+import Head from 'next/head';
 
 // Definindo a interface para o tipo de mensagem
 interface Message {
@@ -13,7 +13,6 @@ interface Message {
   createdAt: string;
 }
 
-// Componente Chat separado (sem export default)
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const router = useRouter();
@@ -242,6 +241,12 @@ function Chat() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Head>
+        <title>Futuros Tech - Chat</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <main className="flex-grow flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="flex justify-center mb-4">
@@ -284,12 +289,4 @@ function Chat() {
   );
 }
 
-// Único export default para o ChatPage
-export default function ChatPage() {
-  return (
-    <>
-      <OneSignalInit />
-      <Chat />
-    </>
-  );
-}
+export default Chat;
