@@ -69,15 +69,6 @@ export default function Grafico() {
         <div className="mb-6 text-center">Carregando gráfico...</div>
       )}
 
-      <div className="text-center mt-7">
-        <button
-          className="w-full md:w-1/2 lg:w-1/3 px-4 py-2 font-bold text-black bg-gray-300 rounded-full hover:bg-gray-400 focus:outline-none focus:shadow-outline mt-4"
-          onClick={() => window.location.href = 'https://apps.apple.com/app/bybit-buy-bitcoin-crypto/id1494961956'}
-        >
-          Enviar Ordem
-        </button>
-      </div>
-
       <BottomNavigation />
     </div>
   );

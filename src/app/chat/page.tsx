@@ -15,6 +15,7 @@ interface Message {
 
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -32,6 +33,7 @@ function Chat() {
   }, [router, supabase.auth]);
 
   const fetchMessages = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('https://servidor-servidor-telegram.dpbdp1.easypanel.host/messages/');
       if (!response.ok) {
@@ -41,6 +43,8 @@ function Chat() {
       setMessages(data);
     } catch (error) {
       console.error('Error fetching messages:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -258,9 +262,28 @@ function Chat() {
             />
           </div>
 
-          <h1 className="text-center font-helvetica mb-4 text-xl">
-            Sinais de Entradas:
-          </h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="font-helvetica text-xl">
+              Sinais de Entradas:
+            </h1>
+            <button
+              onClick={fetchMessages}
+              disabled={isLoading}
+              className="p-2 text-gray-400 hover:text-green-300 focus:outline-none transition-colors duration-200"
+              title="Atualizar sinais"
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              )}
+            </button>
+          </div>
 
           <div className="bg-black rounded-lg shadow-md p-4 overflow-y-auto" style={{ maxHeight: '60vh' }}>
             {messages.map((message, index) => (
@@ -276,7 +299,7 @@ function Chat() {
           <div className="mt-4">
             <button
               className="w-full px-4 py-2 font-bold text-white bg-gray-500 rounded-full hover:bg-gray-600 focus:outline-none focus:shadow-outline"
-              onClick={() => window.location.href = 'https://apps.apple.com/app/bybit-buy-bitcoin-crypto/id1494961956'}
+              onClick={() => window.location.href = 'https://www.bybit.com/'}
             >
               Enviar Ordem
             </button>
