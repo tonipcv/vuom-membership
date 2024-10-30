@@ -18,17 +18,21 @@ export default function ForgotPassword() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: 'https://ai.futurostech.com/reset-password',
       });
 
       if (error) {
-        throw error;
+        if (error.message.includes('Email not found')) {
+          setMessage('Se o e-mail existir em nossa base de dados, você receberá instruções para redefinir sua senha.');
+        } else {
+          throw error;
+        }
+      } else {
+        setMessage('Se o e-mail existir em nossa base de dados, você receberá instruções para redefinir sua senha.');
       }
-
-      setMessage('Se o e-mail existir em nossa base de dados, você receberá instruções para redefinir sua senha.');
     } catch (error) {
       console.error('Erro ao enviar e-mail de recuperação:', error);
-      setMessage('Ocorreu um erro ao enviar o e-mail de recuperação. Por favor, tente novamente.');
+      setMessage('Ocorreu um erro ao tentar enviar o email. Por favor, verifique se o email está correto e tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
