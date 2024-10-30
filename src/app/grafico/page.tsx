@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
+import Link from 'next/link';
+import { OptimizedImage } from '../components/OptimizedImage';
+import { Navigation } from '../components/Navigation';
 
-// Declare TradingView as a global variable
 declare global {
   interface Window {
     TradingView: any;
@@ -53,23 +53,30 @@ export default function Grafico() {
   }, [scriptLoaded]);
 
   return (
-    <div className="container mx-auto px-4 p-20 mb-4">
-      <div className="flex justify-center mb-8">
-        <Image
-          src="/ft-icone.png"
-          alt="Logo da Empresa"
-          width={100}
-          height={50}
-        />
-      </div>
-      
-      {scriptLoaded ? (
-        <div id="tradingview_chart" className="mb-6"></div>
-      ) : (
-        <div className="mb-6 text-center">Carregando gráfico...</div>
-      )}
+    <div className="min-h-screen bg-[#111] text-gray-200">
+      {/* Header */}
+      <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
+        <div className="flex justify-center lg:justify-start">
+          <Link href="/" className="flex items-center">
+            <OptimizedImage src="/ft-icone.png" alt="Futuros Tech Logo" width={40} height={40} />
+          </Link>
+        </div>
+      </header>
 
-      <BottomNavigation />
+      {/* Main Content */}
+      <main className="pt-14 pb-20">
+        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto">
+          {scriptLoaded ? (
+            <div id="tradingview_chart" className="w-full aspect-video"></div>
+          ) : (
+            <div className="w-full aspect-video flex items-center justify-center bg-gray-900">
+              Carregando gráfico...
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Navigation />
     </div>
   );
 }

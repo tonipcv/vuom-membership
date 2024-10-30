@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
+import { Navigation } from '../components/Navigation';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -307,9 +307,9 @@ function Chat() {
         </div>
       </main>
 
-      <BottomNavigation />
+      <Navigation />
     </div>
   );
 }
-
 export default Chat;
+
