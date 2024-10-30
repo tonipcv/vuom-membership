@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Head from 'next/head';
+import Link from 'next/link';
+import OptimizedImage from 'next/image';
 
 // Definindo a interface para o tipo de mensagem
 interface Message {
@@ -135,7 +137,7 @@ function Chat() {
     const [header, type, alvo, lucro, periodo] = lines;
     
     return (
-      <div className="bg-gray-900 p-3 rounded-lg text-white">
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
         <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
         <p className="text-xs md:text-sm mt-1">{type}</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
@@ -200,7 +202,7 @@ function Chat() {
     });
 
     return (
-      <div className="bg-gray-900 p-3 rounded-lg text-white">
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
         <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
         {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
         {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
@@ -236,7 +238,7 @@ function Chat() {
     }
 
     return (
-      <div className="bg-gray-900 p-3 rounded-lg text-white">
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
         <p className="font-bold text-base md:text-lg text-gray-200">{header.replace('#', '').trim()}</p>
         <p className="mt-2 text-gray-300 text-xs md:text-sm">{message}</p>
       </div>
@@ -244,25 +246,20 @@ function Chat() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Head>
-        <title>Futuros Tech - Chat</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div className="min-h-screen bg-[#111] text-gray-200">
+      {/* Header */}
+      <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
+        <div className="flex justify-center lg:justify-start">
+          <Link href="/" className="flex items-center">
+            <OptimizedImage src="/ft-icone.png" alt="Futuros Tech Logo" width={40} height={40} />
+          </Link>
+        </div>
+      </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/ft-icone.png"
-              alt="Logo da Empresa"
-              width={80}
-              height={40}
-            />
-          </div>
-
-          <div className="flex justify-between items-center mb-4">
+      {/* Main Content */}
+      <main className="pt-14 pb-20">
+        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto">
+          <div className="flex justify-between items-center mb-4 px-4 md:px-0">
             <h1 className="font-helvetica text-xl">
               Sinais de Entradas:
             </h1>
@@ -285,9 +282,9 @@ function Chat() {
             </button>
           </div>
 
-          <div className="bg-black rounded-lg shadow-md p-4 overflow-y-auto" style={{ maxHeight: '60vh' }}>
+          <div className=" rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0" style={{ maxHeight: '60vh' }}>
             {messages.map((message, index) => (
-              <div key={index} className="bg-gray-900 p-3 rounded-lg border border-gray-700 mb-2">
+              <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-700 mb-2">
                 <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
                 <p className="text-gray-400 text-xs mt-1">
                   {formatDate(message.createdAt)}
@@ -296,7 +293,7 @@ function Chat() {
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 px-4 md:px-0">
             <button
               className="w-full px-4 py-2 font-bold text-white bg-gray-500 rounded-full hover:bg-gray-600 focus:outline-none focus:shadow-outline"
               onClick={() => window.location.href = 'https://www.bybit.com/'}
