@@ -2,10 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
 
-export default function ForgotPasswordConfirmation() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
 
@@ -54,4 +55,12 @@ export default function ForgotPasswordConfirmation() {
       </div>
     </div>
   );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <ConfirmationContent />
+    </Suspense>
+  )
 } 
