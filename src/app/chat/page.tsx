@@ -292,15 +292,6 @@ function Chat() {
               </div>
             ))}
           </div>
-
-          <div className="mt-4 px-4 md:px-0">
-            <button
-              className="w-full px-4 py-2 font-bold text-white bg-gray-500 rounded-full hover:bg-gray-600 focus:outline-none focus:shadow-outline"
-              onClick={() => window.location.href = 'https://www.bybit.com/'}
-            >
-              Enviar Ordem
-            </button>
-          </div>
         </div>
       </main>
 
