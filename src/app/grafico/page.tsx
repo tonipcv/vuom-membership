@@ -34,7 +34,7 @@ export default function Grafico() {
       new window.TradingView.widget({
         container_id: 'tradingview_chart',
         width: '100%',
-        height: 500,
+        height: '100%',
         symbol: 'BTCUSDT',
         interval: 'D',
         timezone: 'Etc/UTC',
@@ -64,12 +64,12 @@ export default function Grafico() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-14 pb-20">
-        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto">
+      <main className="fixed top-[3.5rem] left-0 right-0 bottom-[4rem]">
+        <div className="w-full h-full">
           {scriptLoaded ? (
-            <div id="tradingview_chart" className="w-full aspect-video"></div>
+            <div id="tradingview_chart" className="w-full h-full"></div>
           ) : (
-            <div className="w-full aspect-video flex items-center justify-center bg-gray-900">
+            <div className="w-full h-full flex items-center justify-center bg-gray-900">
               Carregando gráfico...
             </div>
           )}
