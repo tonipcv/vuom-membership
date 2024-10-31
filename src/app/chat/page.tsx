@@ -257,8 +257,8 @@ function Chat() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-14 pb-20">
-        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto">
+      <main className="pt-14 pb-24">
+        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
           <div className="flex justify-between items-center mb-4 px-4 md:px-0">
             <h1 className="font-helvetica text-xl">
               Sinais de Entradas:
@@ -282,7 +282,7 @@ function Chat() {
             </button>
           </div>
 
-          <div className=" rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0" style={{ maxHeight: '60vh' }}>
+          <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)]">
             {messages.map((message, index) => (
               <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-700 mb-2">
                 <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
