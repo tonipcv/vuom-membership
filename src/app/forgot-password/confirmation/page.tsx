@@ -2,13 +2,33 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
+  const supabase = createClientComponentClient();
   const email = searchParams.get('email');
+  const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    const sendResetEmail = async () => {
+      if (email && !emailSent) {
+        try {
+          await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/update-password`
+          });
+          setEmailSent(true);
+        } catch (error) {
+          // Silently handle errors
+        }
+      }
+    };
+
+    sendResetEmail();
+  }, [email, supabase.auth, emailSent]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
@@ -40,7 +60,6 @@ function ConfirmationContent() {
           <p className="mt-2 text-center text-white font-medium">
             {email}
           </p>
-
         </div>
 
         <div className="mt-8 text-center">
