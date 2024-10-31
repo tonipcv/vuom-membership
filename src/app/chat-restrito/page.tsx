@@ -2,8 +2,18 @@
 
 import Image from 'next/image';
 import BottomNavigation from '../../components/BottomNavigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function RestrictedChat() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
   const mockSignals = [
     {
       title: "WINFUT",
@@ -84,7 +94,7 @@ export default function RestrictedChat() {
         </div>
       </div>
 
-      {/* Modal de Restrição Fixo com fundo mais transparente */}
+      {/* Modal de Restrição com botão de logout adicionado */}
       <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4 backdrop-blur-[2px]">
         <div className="bg-gray-900 rounded-xl p-8 max-w-md w-full border border-gray-800 shadow-2xl">
           <div className="text-center">
@@ -115,6 +125,27 @@ export default function RestrictedChat() {
             >
               Assinar Plano Premium
             </a>
+            
+            {/* Botão de Logout */}
+            <button
+              onClick={handleSignOut}
+              className="mt-4 text-gray-400 hover:text-gray-200 transition-colors text-sm flex items-center justify-center w-full space-x-2"
+            >
+              <svg 
+                className="h-4 w-4" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
+                />
+              </svg>
+              <span>Sair da conta</span>
+            </button>
           </div>
         </div>
       </div>
