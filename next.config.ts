@@ -8,11 +8,10 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/push/onesignal/:path*',
-        destination: '/push/onesignal/:path*',
+        destination: '/api/push/onesignal/:path*', 
       },
     ];
   },
-  /* outras opções de configuração aqui */
 };
 
 export default nextConfig;

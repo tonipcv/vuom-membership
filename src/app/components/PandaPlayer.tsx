@@ -4,8 +4,14 @@ import { useEffect } from 'react'
 
 declare global {
   interface Window {
-    pandascripttag: any[]
-    PandaPlayer: any
+    pandascripttag: (() => void)[]
+    PandaPlayer: new (videoId: string, options: {
+      onReady: () => void
+      library_id: string
+      video_id: string
+      fetchPriority: string
+      defaultStyle: boolean
+    }) => void
   }
 }
 

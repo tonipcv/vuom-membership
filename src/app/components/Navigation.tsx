@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import {
   ChartBarIcon,
@@ -11,12 +10,13 @@ import {
   ArrowRightOnRectangleIcon,
   BanknotesIcon,
 } from '@heroicons/react/24/outline';
+import supabaseClient from '@/src/lib/superbaseClient';
 
 export function Navigation() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);

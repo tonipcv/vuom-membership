@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import BottomNavigation from '../../components/BottomNavigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function RestrictedCourses() {
-  const [showModal, setShowModal] = useState(true);
+  const [showModal] = useState(true);
 
   return (
     <div className="container mx-auto px-4 py-10 mb-16 mt-20 relative">

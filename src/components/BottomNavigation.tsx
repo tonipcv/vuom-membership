@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import supabaseClient from '../lib/superbaseClient';
+
 
 const BottomNavigation = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
 
   const handleLogout = async () => {
     try {

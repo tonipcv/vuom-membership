@@ -11,14 +11,6 @@ interface OptimizedImageProps {
 }
 
 export function OptimizedImage({ src, alt, ...props }: OptimizedImageProps) {
-  // Determina a extensão do arquivo
-  const extension = src.split('.').pop()?.toLowerCase()
-  
-  // Gera o srcSet para WebP se a imagem original não for SVG
-  const srcSet = extension !== 'svg' ? [
-    { src: src.replace(`.${extension}`, '.webp'), type: 'image/webp' },
-    { src, type: `image/${extension}` }
-  ] : undefined
 
   return (
     <Image

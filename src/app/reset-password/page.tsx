@@ -3,7 +3,8 @@
 import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import supabaseClient from '@/src/lib/superbaseClient';
+
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -12,7 +13,7 @@ export default function ResetPassword() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

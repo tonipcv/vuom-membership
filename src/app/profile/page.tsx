@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { FiUser, FiMail, FiPhone, FiCalendar, FiEdit2, FiSave, FiX } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import ProfileHeader from '../../components/ProfileHeader';
 import StatCard from '../../components/StatCard';
 import ActivityFeed from '../../components/ActivityFeed';
+import supabaseClient from '@/src/lib/superbaseClient';
 
 interface UserProfile {
   id: string;
@@ -22,7 +22,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
   const { theme } = useTheme();
 
   useEffect(() => {

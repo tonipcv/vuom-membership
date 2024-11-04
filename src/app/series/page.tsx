@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowUpIcon, MagnifyingGlassIcon, Bars3Icon, DocumentArrowDownIcon } from '@heroicons/react/24/outline'
+import { DocumentArrowDownIcon } from '@heroicons/react/24/outline'
 import { OptimizedImage } from '../components/OptimizedImage'
 import { Navigation } from '../components/Navigation'
 import { PandaPlayer } from '../components/PandaPlayer'
@@ -127,7 +127,7 @@ export default function SeriesPage() {
             <section className="bg-gray-900/50 p-4 rounded-lg">
               <h2 className="text-lg font-bold mb-3">Materiais Complementares</h2>
               <div className="space-y-1">
-                <a href="#" className="block p-2 hover:bg-gray-800 rounded-lg transition-colors text-sm flex items-center gap-2">
+                <a href="#" className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-sm flex items-center gap-2">
                   <DocumentArrowDownIcon className="w-4 h-4" />
                   Material 1.pdf
                 </a>

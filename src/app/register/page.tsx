@@ -3,7 +3,7 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabase';
+import supabaseClient from '../../lib/superbaseClient';
 import { useRouter } from 'next/navigation';
 
 // Hook personalizado para máscara de telefone
@@ -55,7 +55,7 @@ export default function Register() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {

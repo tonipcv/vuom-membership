@@ -2,12 +2,12 @@
 
 import Image from 'next/image';
 import BottomNavigation from '../../components/BottomNavigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
+import supabaseClient from '@/src/lib/superbaseClient';
 
 export default function RestrictedChat() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();

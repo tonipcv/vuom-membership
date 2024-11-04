@@ -1,16 +1,14 @@
 'use client';
 
-import Image from 'next/image';
 import { Navigation } from '../components/Navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Head from 'next/head';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
+import supabaseClient from '@/src/lib/superbaseClient';
 
-// Definindo a interface para o tipo de mensagem
 interface Message {
+  id: number;
   text: string;
   createdAt: string;
 }
@@ -18,8 +16,9 @@ interface Message {
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const lastNotifiedId = useRef<number | null>(null);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = supabaseClient;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -27,14 +26,24 @@ function Chat() {
       if (!user) {
         router.push('/');
       } else {
-        fetchMessages();
+        pollMessages();
       }
     };
 
     checkUser();
+
+    const intervalId = setInterval(pollMessages, 5000);
+    // Intervalo semanal para verificar consistência de mensagens
+    const weeklyIntervalId = setInterval(pollMessages, 7 * 24 * 60 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(weeklyIntervalId);  // Limpa o intervalo semanal
+    };
   }, [router, supabase.auth]);
 
-  const fetchMessages = async () => {
+  const pollMessages = async () => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       const response = await fetch('https://servidor-servidor-telegram.dpbdp1.easypanel.host/messages/');
@@ -42,29 +51,67 @@ function Chat() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      setMessages(data);
+
+      if (data.length > 0) {
+        const latestMessage = data[0]; // Primeira mensagem é a mais recente
+
+        // Verifica se o ID da mensagem é diferente do último notificado
+        if (latestMessage.id !== lastNotifiedId.current) {
+          await sendNotification(latestMessage); // Envia a notificação para nova mensagem
+          lastNotifiedId.current = latestMessage.id; // Atualiza o ID da última notificação
+          setMessages(data); // Atualiza a lista de mensagens
+        }
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Define `isLoading` como falso após a execução
     }
   };
+
+
+  const sendNotification = async (message: Message) => {
+    // Verifica se já existe um ID notificado recente para evitar duplicidade
+    const notifiedId = localStorage.getItem('lastSentNotificationId');
+    if (notifiedId === message.id.toString()) {
+      return; // Sai da função se a notificação já foi enviada
+    }
+  
+    try {
+      await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${process.env.NEXT_PUBLIC_ONESIGNAL_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+          included_segments: ['All'],
+          contents: { en: message.text },
+          headings: { en: 'Alerta de Entrada' },
+        }),
+      });
+  
+      // Armazena o ID da última notificação enviada
+      localStorage.setItem('lastSentNotificationId', message.id.toString());
+    } catch (error) {
+      console.error('Erro ao enviar notificação:', error);
+    }
+  };
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    
-    // Configuração para o fuso horário de Brasília
+
     const options: Intl.DateTimeFormatOptions = {
       timeZone: 'America/Sao_Paulo',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
     };
 
     const brazilTime = date.toLocaleString('pt-BR', options);
-    const nowBrazil = now.toLocaleString('pt-BR', options);
-    
     const [datePart] = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
     const [nowDatePart] = now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
 
@@ -84,19 +131,14 @@ function Chat() {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
       });
     }
   };
 
   const removeEmojis = (text: string) => {
-    // Substituímos o emoji 🟢 por um hífen
     let modifiedText = text.replace(/🟢/g, '-');
-    
-    // Removemos o emoji invisível antes de "ALAVANCAGEM ISOLADA"
     modifiedText = modifiedText.replace(/️(\s*)ALAVANCAGEM ISOLADA/, '$1ALAVANCAGEM ISOLADA');
-    
-    // Removemos todos os outros emojis
     return modifiedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
   };
 
@@ -111,31 +153,21 @@ function Chat() {
       return formatCancelado(lines);
     }
     
-    // Fallback para o formato anterior
-    return (
-      <>
-        {lines.map((line, index) => {
-          if (index === 0 && line.toLowerCase().includes('compra')) {
-            return <p key={index} className="text-green-500 font-bold">{line.trim()}</p>;
-          } else if (line.toLowerCase().startsWith('entrada na zona')) {
-            return <p key={index} className="text-white">{line.trim()}</p>;
-          } else if (line.toLowerCase().includes('alavancagem isolada')) {
-            return <p key={index} className="text-white">{line.trim()}</p>;
-          } else if (line.toLowerCase().includes('alvos:')) {
-            return formatTargets(line);
-          } else if (line.toLowerCase().startsWith('stooploss')) {
-            return <p key={index} className="text-gray-500">{line.trim()}</p>;
-          } else {
-            return <p key={index} className="text-white">{line.trim()}</p>;
-          }
-        })}
-      </>
-    );
+    return lines.map((line, index) => (
+      <p key={index} className={`text-${getTextColor(line)}`}>{line.trim()}</p>
+    ));
+  };
+
+
+  const getTextColor = (line: string) => {
+    if (line.toLowerCase().includes('compra')) return 'green-500 font-bold';
+    if (line.toLowerCase().includes('alvos:')) return 'white';
+    if (line.toLowerCase().startsWith('stooploss')) return 'gray-500';
+    return 'white';
   };
 
   const formatTakeProfit = (lines: string[]) => {
     const [header, type, alvo, lucro, periodo] = lines;
-    
     return (
       <div className="bg-gray-700 p-3 rounded-lg text-white">
         <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
@@ -143,37 +175,31 @@ function Chat() {
         <div className="mt-2 grid grid-cols-3 gap-2">
           <div>
             <p className="font-semibold text-gray-400 text-xs md:text-sm">Alvo</p>
-            <p className="text-xs md:text-sm">{alvo.split(':')[1].trim()}</p>
+            <p className="text-xs md:text-sm">{alvo && alvo.includes(':') ? alvo.split(':')[1].trim() : 'N/A'}</p>
           </div>
           <div>
             <p className="font-semibold text-gray-400 text-xs md:text-sm">Lucro</p>
-            <p className="text-green-500 text-xs md:text-sm">{lucro.split(':')[1].trim()}</p>
+            <p className="text-green-500 text-xs md:text-sm">{lucro && lucro.includes(':') ? lucro.split(':')[1].trim() : 'N/A'}</p>
           </div>
           <div>
             <p className="font-semibold text-gray-400 text-xs md:text-sm">Período</p>
-            <p className="text-xs md:text-sm">{periodo.split(':')[1].trim()}</p>
+            <p className="text-xs md:text-sm">{periodo && periodo.includes(':') ? periodo.split(':')[1].trim() : 'N/A'}</p>
           </div>
         </div>
       </div>
     );
   };
+  
 
   const formatTargets = (line: string) => {
     const [label, targetsString] = line.split(':');
-    const targets = targetsString
-      .split('-')
-      .map(t => t.trim())
-      .filter(t => t !== ''); // Remove itens vazios
-    
+    const targets = targetsString.split('-').map(t => t.trim()).filter(t => t !== '');
     return (
       <div className="mt-1">
         <p className="text-white font-bold">{label.trim()}:</p>
         <div className="flex flex-wrap gap-1 mt-1">
           {targets.map((target, index) => (
-            <span 
-              key={index} 
-              className="bg-green-300 text-white px-2 py-0.5 rounded-full text-xs"
-            >
+            <span key={index} className="bg-green-300 text-white px-2 py-0.5 rounded-full text-xs">
               {target}
             </span>
           ))}
@@ -184,21 +210,14 @@ function Chat() {
 
   const formatCompra = (lines: string[]) => {
     const [header, ...rest] = lines;
-    let entradaZona = '';
-    let alavancagem = '';
-    let alvos: string[] = [];
-    let stoploss = '';
+    let entradaZona = '', alavancagem = '', stoploss = '';
+    const alvos: string[] = [];
 
     rest.forEach(line => {
-      if (line.toLowerCase().includes('entrada na zona')) {
-        entradaZona = line;
-      } else if (line.toLowerCase().includes('alavancagem isolada')) {
-        alavancagem = line;
-      } else if (line.toLowerCase().includes('alvos:')) {
-        alvos = line.split(':')[1].split('-').map(a => a.trim()).filter(a => a);
-      } else if (line.toLowerCase().includes('stooploss')) {
-        stoploss = line;
-      }
+      if (line.toLowerCase().includes('entrada na zona')) entradaZona = line;
+      if (line.toLowerCase().includes('alavancagem isolada')) alavancagem = line;
+      if (line.toLowerCase().includes('alvos:')) alvos.push(...line.split(':')[1].split('-').map(a => a.trim()));
+      if (line.toLowerCase().includes('stooploss')) stoploss = line;
     });
 
     return (
@@ -206,21 +225,7 @@ function Chat() {
         <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
         {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
         {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
-        {alvos.length > 0 && (
-          <div className="mt-2">
-            <p className="font-semibold text-gray-200 text-xs md:text-sm">Alvos:</p>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {alvos.map((alvo, index) => (
-                <span 
-                  key={index} 
-                  className="bg-green-300 text-gray-900 px-2 py-1 rounded-full text-xs"
-                >
-                  {alvo}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        {alvos.length > 0 && formatTargets(`Alvos: ${alvos.join(' - ')}`)}
         {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
       </div>
     );
@@ -229,13 +234,8 @@ function Chat() {
   const formatCancelado = (lines: string[]) => {
     const [header, ...rest] = lines;
     let message = rest.join(' ').replace('@FuturosTech', '').trim();
-    
-    // Remove o '<' do final, se existir, e adiciona um ponto
-    if (message.endsWith('<')) {
-      message = message.slice(0, -1) + '.';
-    } else if (!message.endsWith('.')) {
-      message += '.';
-    }
+    if (message.endsWith('<')) message = message.slice(0, -1) + '.';
+    else if (!message.endsWith('.')) message += '.';
 
     return (
       <div className="bg-gray-700 p-3 rounded-lg text-white">
@@ -247,7 +247,6 @@ function Chat() {
 
   return (
     <div className="min-h-screen bg-[#111] text-gray-200">
-      {/* Header */}
       <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
         <div className="flex justify-center lg:justify-start">
           <Link href="/" className="flex items-center">
@@ -256,15 +255,12 @@ function Chat() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="pt-14 pb-24">
         <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
           <div className="flex justify-between items-center mb-4 px-4 md:px-0">
-            <h1 className="font-helvetica text-xl">
-              Sinais de Entradas:
-            </h1>
+            <h1 className="font-helvetica text-xl">Sinais de Entradas:</h1>
             <button
-              onClick={fetchMessages}
+              onClick={pollMessages}
               disabled={isLoading}
               className="p-2 text-gray-400 hover:text-green-300 focus:outline-none transition-colors duration-200"
               title="Atualizar sinais"
@@ -286,9 +282,7 @@ function Chat() {
             {messages.map((message, index) => (
               <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-700 mb-2">
                 <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
-                <p className="text-gray-400 text-xs mt-1">
-                  {formatDate(message.createdAt)}
-                </p>
+                <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
               </div>
             ))}
           </div>
@@ -299,5 +293,5 @@ function Chat() {
     </div>
   );
 }
-export default Chat;
 
+export default Chat;

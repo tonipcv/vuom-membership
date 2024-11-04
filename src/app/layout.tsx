@@ -1,9 +1,11 @@
-import { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { ThemeProvider } from '../contexts/ThemeContext'
+// src/app/layout.tsx
+import { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '../contexts/ThemeContext';
+import OneSignalInitializer from '../components/OneSignalInitializer'; // ajuste o caminho conforme necessário
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
@@ -48,7 +50,7 @@ export const metadata: Metadata = {
     url: 'https://app.futurostech.com',
     siteName: 'Futuros Tech',
   },
-}
+};
 
 export default function RootLayout({
   children,
@@ -59,9 +61,10 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={inter.className}>
         <ThemeProvider>
+          <OneSignalInitializer />
           {children}
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,30 +1,39 @@
-import { supabase } from "@/src/lib/supabase";
+
+import supabaseClient from '@/src/lib/superbaseClient';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
     try {
-        // Parse the request body
+        console.log("Iniciando envio de notificação...");
+
+        // Parse o corpo da requisição
         const body = await req.json();
+        console.log("Body recebido:", body);
+
         const {
-            last_status,       // Status da assinatura (ex.: approved, canceled)
-            created_at,        // Data de criação
-            expires_at,        // Data de expiração
-            subscriber         // Dados do assinante, incluindo telefone, email, etc.
+            last_status,
+            created_at,
+            expires_at,
+            subscriber
         } = body;
 
-        // Extraindo dados do assinante
+        console.log("Extraindo dados do assinante...");
         const {
             phone_number,
             phone_local_code,
             name,
-            doc,               // Documento do usuário
-            email,             // Email do usuário
-            id                 // ID do usuário
+            doc,
+            email,
+            id
         } = subscriber;
 
         const expirationDate = expires_at ? new Date(expires_at) : null;
 
+        // Obtém o Supabase Client
+        const supabase = supabaseClient;
+
         // Atualizando o perfil no Supabase
+        console.log("Atualizando perfil no Supabase...");
         const { error } = await supabase
             .from('profiles')
             .update({
@@ -47,6 +56,7 @@ export async function POST(req: Request) {
             );
         }
 
+        console.log("Acesso premium atualizado com sucesso!");
         return NextResponse.json(
             { message: 'Acesso premium atualizado com sucesso!' },
             { status: 200 }

@@ -5,15 +5,28 @@ import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import supabaseClient from '@/src/lib/superbaseClient';
+
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient();
-  const email = searchParams.get('email');
+  const supabase = supabaseClient;
   const [emailSent, setEmailSent] = useState(false);
+  
+  let email: string | null = null;
+  if (searchParams) {
+    email = searchParams.get('email');
+  } else {
+    console.error("Parâmetros de busca não encontrados.");
+  }
+  
+  if (email) {
 
-  useEffect(() => {
+  } else {
+    console.warn("Email não encontrado nos parâmetros de busca.");
+  }
+
+  useEffect(() => {     
     const sendResetEmail = async () => {
       if (email && !emailSent) {
         try {
@@ -22,14 +35,14 @@ function ConfirmationContent() {
           });
           setEmailSent(true);
         } catch (error) {
-          // Silently handle errors
+          console.error("Erro ao enviar e-mail de redefinição de senha:", error);
         }
       }
     };
-
+  
     sendResetEmail();
-  }, [email, supabase.auth, emailSent]);
-
+  }, [email, emailSent, supabase.auth]);
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-black p-8 rounded-lg border border-zinc-800">
