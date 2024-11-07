@@ -9,6 +9,7 @@ import {
   PlayIcon,
   ArrowRightOnRectangleIcon,
   BanknotesIcon,
+  DocumentChartBarIcon,
 } from '@heroicons/react/24/outline';
 import supabaseClient from '@/src/lib/superbaseClient';
 
@@ -55,6 +56,16 @@ export function Navigation() {
             >
               <BanknotesIcon className="w-6 h-6" />
               <span className="text-xs mt-1">Entradas</span>
+            </Link>
+
+            <Link
+              href="/relatorio"
+              className={`flex flex-col items-center ${
+                pathname === '/relatorio' ? 'text-green-300' : 'text-gray-400'
+              } transition-colors hover:text-green-300`}
+            >
+              <DocumentChartBarIcon className="w-6 h-6" />
+              <span className="text-xs mt-1">Relatório</span>
             </Link>
 
             <Link
