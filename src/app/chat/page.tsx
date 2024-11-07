@@ -149,6 +149,8 @@ function Chat() {
       return formatTakeProfit(lines);
     } else if (lines[0].includes('COMPRA')) {
       return formatCompra(lines);
+    } else if (lines[0].includes('VENDA')) {
+      return formatVenda(lines);
     } else if (lines[0].includes('cancelado')) {
       return formatCancelado(lines);
     }
@@ -199,7 +201,7 @@ function Chat() {
         <p className="text-white font-bold">{label.trim()}:</p>
         <div className="flex flex-wrap gap-1 mt-1">
           {targets.map((target, index) => (
-            <span key={index} className="bg-green-300 text-white px-2 py-0.5 rounded-full text-xs">
+            <span key={index} className="bg-green-300 text-black px-2 py-0.5 rounded-full text-xs">
               {target}
             </span>
           ))}
@@ -245,6 +247,29 @@ function Chat() {
     );
   };
 
+  const formatVenda = (lines: string[]) => {
+    const [header, ...rest] = lines;
+    let entradaZona = '', alavancagem = '', stoploss = '';
+    const alvos: string[] = [];
+
+    rest.forEach(line => {
+      if (line.toLowerCase().includes('entrada na zona')) entradaZona = line;
+      if (line.toLowerCase().includes('alavancagem isolada')) alavancagem = line;
+      if (line.toLowerCase().includes('alvos:')) alvos.push(...line.split(':')[1].split('-').map(a => a.trim()));
+      if (line.toLowerCase().includes('stooploss')) stoploss = line;
+    });
+
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
+        {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
+        {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
+        {alvos.length > 0 && formatTargets(`Alvos: ${alvos.join(' - ')}`)}
+        {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#111] text-gray-200">
       <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
@@ -262,7 +287,7 @@ function Chat() {
             <button
               onClick={pollMessages}
               disabled={isLoading}
-              className="p-2 text-gray-400 hover:text-green-300 focus:outline-none transition-colors duration-200"
+              className="p-2 text-white hover:text-green-300 focus:outline-none transition-colors duration-200"
               title="Atualizar sinais"
             >
               {isLoading ? (
@@ -280,7 +305,7 @@ function Chat() {
 
           <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)]">
             {messages.map((message, index) => (
-              <div key={index} className="bg-gray-700 p-3 rounded-lg border border-gray-700 mb-2">
+              <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700 mb-2">
                 <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
                 <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
               </div>
