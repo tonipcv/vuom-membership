@@ -283,7 +283,7 @@ function Chat() {
       <main className="pt-14 pb-24">
         <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
           <div className="flex justify-between items-center mb-4 px-4 md:px-0">
-            <h1 className="font-helvetica text-xl">Sinais de Entradas:</h1>
+            <h1 className="font-helvetica text-xl">Alertas de Entradas:</h1>
             <button
               onClick={pollMessages}
               disabled={isLoading}
