@@ -5,20 +5,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import supabaseClient from '@/src/lib/superbaseClient';
 
-// Adicione esta função antes do handleSubmit
+// Modifique a função validatePassword para retornar um objeto com todos os status
 const validatePassword = (password: string) => {
-  const minLength = password.length >= 8;
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecialChar = /[!@#$%^&*]/.test(password);
-
-  if (!minLength) return 'A senha deve ter pelo menos 8 caracteres';
-  if (!hasUpperCase) return 'A senha deve conter pelo menos uma letra maiúscula';
-  if (!hasLowerCase) return 'A senha deve conter pelo menos uma letra minúscula';
-  if (!hasNumber) return 'A senha deve conter pelo menos um número';
-  if (!hasSpecialChar) return 'A senha deve conter pelo menos um caractere especial (!@#$%^&*)';
-  return null;
+  return {
+    minLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecialChar: /[!@#$%^&*]/.test(password)
+  };
 };
 
 export default function ResetPassword() {
@@ -27,8 +22,22 @@ export default function ResetPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [validations, setValidations] = useState({
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  });
   const router = useRouter();
   const supabase = supabaseClient;
+
+  // Adicione esta função para atualizar as validações quando a senha mudar
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setValidations(validatePassword(newPassword));
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,10 +52,10 @@ export default function ResetPassword() {
       return;
     }
 
-    // Validar requisitos da senha
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
+    // Verificar se todos os requisitos foram atendidos
+    const currentValidations = validatePassword(password);
+    if (!Object.values(currentValidations).every(Boolean)) {
+      setError('A senha não atende a todos os requisitos');
       setIsSubmitting(false);
       return;
     }
@@ -99,7 +108,7 @@ export default function ResetPassword() {
             required 
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             minLength={8}
           />
         </div>
@@ -121,14 +130,24 @@ export default function ResetPassword() {
           />
         </div>
 
-        <div className="mb-4 text-sm text-gray-400 bg-gray-800 p-3 rounded-lg">
-          <p>A senha deve conter:</p>
-          <ul className="list-disc list-inside mt-1">
-            <li>Mínimo de 8 caracteres</li>
-            <li>Pelo menos uma letra maiúscula</li>
-            <li>Pelo menos uma letra minúscula</li>
-            <li>Pelo menos um número</li>
-            <li>Pelo menos um caractere especial (!@#$%^&*)</li>
+        <div className="mb-4 text-sm bg-gray-800 p-3 rounded-lg">
+          <p className="text-gray-400">A senha deve conter:</p>
+          <ul className="mt-1">
+            <li className={`flex items-center ${validations.minLength ? 'text-green-500' : 'text-gray-400'}`}>
+              {validations.minLength ? '✓' : '○'} Mínimo de 8 caracteres
+            </li>
+            <li className={`flex items-center ${validations.hasUpperCase ? 'text-green-500' : 'text-gray-400'}`}>
+              {validations.hasUpperCase ? '✓' : '○'} Pelo menos uma letra maiúscula
+            </li>
+            <li className={`flex items-center ${validations.hasLowerCase ? 'text-green-500' : 'text-gray-400'}`}>
+              {validations.hasLowerCase ? '✓' : '○'} Pelo menos uma letra minúscula
+            </li>
+            <li className={`flex items-center ${validations.hasNumber ? 'text-green-500' : 'text-gray-400'}`}>
+              {validations.hasNumber ? '✓' : '○'} Pelo menos um número
+            </li>
+            <li className={`flex items-center ${validations.hasSpecialChar ? 'text-green-500' : 'text-gray-400'}`}>
+              {validations.hasSpecialChar ? '✓' : '○'} Pelo menos um caractere especial (!@#$%^&*)
+            </li>
           </ul>
         </div>
 
