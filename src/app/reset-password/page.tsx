@@ -5,6 +5,21 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import supabaseClient from '@/src/lib/superbaseClient';
 
+// Adicione esta função antes do handleSubmit
+const validatePassword = (password: string) => {
+  const minLength = password.length >= 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[!@#$%^&*]/.test(password);
+
+  if (!minLength) return 'A senha deve ter pelo menos 8 caracteres';
+  if (!hasUpperCase) return 'A senha deve conter pelo menos uma letra maiúscula';
+  if (!hasLowerCase) return 'A senha deve conter pelo menos uma letra minúscula';
+  if (!hasNumber) return 'A senha deve conter pelo menos um número';
+  if (!hasSpecialChar) return 'A senha deve conter pelo menos um caractere especial (!@#$%^&*)';
+  return null;
+};
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -28,9 +43,10 @@ export default function ResetPassword() {
       return;
     }
 
-    // Validar comprimento mínimo da senha
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
+    // Validar requisitos da senha
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       setIsSubmitting(false);
       return;
     }
@@ -84,7 +100,7 @@ export default function ResetPassword() {
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
+            minLength={8}
           />
         </div>
 
@@ -101,8 +117,19 @@ export default function ResetPassword() {
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            minLength={6}
+            minLength={8}
           />
+        </div>
+
+        <div className="mb-4 text-sm text-gray-400 bg-gray-800 p-3 rounded-lg">
+          <p>A senha deve conter:</p>
+          <ul className="list-disc list-inside mt-1">
+            <li>Mínimo de 8 caracteres</li>
+            <li>Pelo menos uma letra maiúscula</li>
+            <li>Pelo menos uma letra minúscula</li>
+            <li>Pelo menos um número</li>
+            <li>Pelo menos um caractere especial (!@#$%^&*)</li>
+          </ul>
         </div>
 
         {error && (
