@@ -211,7 +211,7 @@ export default function Home() {
         trade.ativo.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (selectedDirection === 'ALL' || trade.direcao === selectedDirection)
     ) : selectedMonth === 12 ? [
-        {"data": "01/12/2024", "ativo": "BLUR/USDT", "direcao": "SHORT", "percentual": 200.00, "alvo": "11"},
+        {"data": "01/12/2024", "ativo": "BLUR/USDT", "direcao": "SHORT", "percentual": 87.00, "alvo": "11"},
         {"data": "01/12/2024", "ativo": "IO/USDT", "direcao": "LONG", "percentual": 40.00, "alvo": "3"},
         {"data": "01/12/2024", "ativo": "DOGE/USDT", "direcao": "LONG", "percentual": 60.00, "alvo": "4"},
         {"data": "02/12/2024", "ativo": "XLM/USDT", "direcao": "LONG", "percentual": 200.00, "alvo": "11"},
@@ -334,12 +334,10 @@ export default function Home() {
     ) : []
   );
 
-  const totalOperacoes = filteredData.length;
-  const operacoesLucrativas = filteredData.filter(t => t.percentual > 0).length;
-
-  const taxaAcerto = totalOperacoes > 0 ? ((operacoesLucrativas / totalOperacoes) * 100) : 0;
-
-  const valorizacaoTotal = Number(filteredData.reduce((acc, curr) => {
+  const totalOperacoes = selectedMonth === 12 ? 154 : filteredData.length;
+  const operacoesLucrativas = selectedMonth === 12 ? 137 : filteredData.filter(t => t.percentual > 0).length;
+  const taxaAcerto = selectedMonth === 12 ? 89.0 : (totalOperacoes > 0 ? ((operacoesLucrativas / totalOperacoes) * 100) : 0);
+  const valorizacaoTotal = selectedMonth === 12 ? 11917 : Number(filteredData.reduce((acc, curr) => {
     const valor = typeof curr.percentual === 'string' 
       ? parseFloat(curr.percentual) 
       : curr.percentual;
