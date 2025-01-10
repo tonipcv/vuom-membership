@@ -146,7 +146,7 @@ function Chat() {
     const lines = removeEmojis(text).split('\n');
     
     if (lines[0].includes('Take - Profit')) {
-      return formatTakeProfit(lines);
+      return null;
     } else if (lines[0].includes('COMPRA')) {
       return formatCompra(lines);
     } else if (lines[0].includes('VENDA')) {
@@ -304,12 +304,16 @@ function Chat() {
           </div>
 
           <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)]">
-            {messages.map((message, index) => (
-              <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700 mb-2">
-                <div className="text-sm md:text-base">{formatMessage(message.text)}</div>
-                <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
-              </div>
-            ))}
+            {messages.map((message, index) => {
+              const formattedMessage = formatMessage(message.text);
+              if (!formattedMessage) return null;
+              return (
+                <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700 mb-2">
+                  <div className="text-sm md:text-base">{formattedMessage}</div>
+                  <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>
