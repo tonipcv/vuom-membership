@@ -42,8 +42,9 @@ export default function Home() {
   const [initialTrades, setInitialTrades] = useState<Trade[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDirection, setSelectedDirection] = useState<'ALL' | 'LONG' | 'SHORT'>('ALL');
-  const [selectedMonth, setSelectedMonth] = useState<number>(10);
+  const [selectedMonth, setSelectedMonth] = useState<number>(12);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showTargetAnalysis, setShowTargetAnalysis] = useState<boolean>(false);
 
   useEffect(() => {
     async function getTrades() {
@@ -404,153 +405,290 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Abas dos meses */}
+          {/* Seleção de mês */}
           <div className="mt-8 border-b border-gray-700">
-            <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Months">
-              {months.map((month) => (
+            <nav className="-mb-px flex items-center justify-between py-4" aria-label="Months">
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(Number(e.target.value));
+                  setShowTargetAnalysis(false);
+                }}
+                className="rounded-md bg-gray-800 text-gray-200 px-4 py-2 text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+              >
+                {months.map((month) => (
+                  <option key={month.number} value={month.number}>
+                    {month.name}
+                  </option>
+                ))}
+              </select>
+              {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && (
                 <button
-                  key={month.number}
-                  onClick={() => setSelectedMonth(month.number)}
-                  className={`
-                    whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
-                    ${selectedMonth === month.number
-                      ? 'border-green-300 text-green-300'
-                      : 'border-transparent text-gray-400 hover:border-gray-700 hover:text-gray-300'
-                    }
-                  `}
+                  onClick={() => setShowTargetAnalysis(!showTargetAnalysis)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-800 text-green-300 hover:text-green-200 rounded-md border border-gray-700 transition-colors"
                 >
-                  {month.name}
+                  <BarChart3 className="h-4 w-4" />
+                  {showTargetAnalysis ? 'Voltar para Relatório' : 'Análise por Alvo'}
                 </button>
-              ))}
+              )}
             </nav>
           </div>
 
-          {/* Cards de estatísticas */}
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-1">
-                  <PieChart className="h-4 w-4 text-green-300" strokeWidth={1.5} />
-                  <span className="text-sm text-gray-400">Win Rate</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white">
-                    {taxaAcerto.toFixed(1)}%
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {operacoesLucrativas}/{totalOperacoes}
-                  </span>
+          {/* Análise por Alvo - Agosto até Dezembro */}
+          {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && showTargetAnalysis ? (
+            <div className="mt-8">
+              <div className="sm:flex sm:items-center">
+                <div className="sm:flex-auto">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-white/5 p-2 ring-1 ring-white/10">
+                      <BarChart3 className="h-5 w-5 text-green-300" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold leading-6 text-white">
+                        Análise por Alvo - {
+                          selectedMonth === 8 ? 'Agosto' : 
+                          selectedMonth === 9 ? 'Setembro' : 
+                          selectedMonth === 10 ? 'Outubro' : 
+                          selectedMonth === 11 ? 'Novembro' :
+                          'Dezembro'
+                        }
+                      </h2>
+                      <p className="mt-2 text-sm text-gray-400">
+                        Detalhamento do desempenho por alvo de operação
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-emerald-400" strokeWidth={1.5} />
-                  <span className="text-sm text-gray-400">Resultado Total</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white">
-                    {valorizacaoTotal > 0 ? '+' : ''}{valorizacaoTotal.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-1">
-                  <BarChart3 className="h-4 w-4 text-green-400" strokeWidth={1.5} />
-                  <span className="text-sm text-gray-400">Total de Sinais</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white">
-                    {totalOperacoes}
-                  </span>
-                  <span className="text-xs text-gray-500">operações</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabela de operações */}
-          <div className="mt-8">
-            <div className="sm:flex sm:items-center">
-              <div className="sm:flex-auto">
-                <h2 className="text-base font-semibold leading-6 text-white">Operações</h2>
-                <p className="mt-2 text-sm text-gray-400">
-                  Lista detalhada de todas as operações realizadas
-                </p>
-              </div>
-            </div>
-            <div className="mt-8 flow-root">
-              <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                  <table className="min-w-full divide-y divide-gray-700">
-                    <thead>
-                      <tr>
-                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-200 sm:pl-0">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" strokeWidth={1.5} />
-                            Data
-                          </div>
-                        </th>
-                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
-                          <div className="flex items-center gap-2">
-                            <Search className="h-4 w-4" strokeWidth={1.5} />
-                            Ativo
-                          </div>
-                        </th>
-                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
-                          <div className="flex items-center gap-2">
-                            <Filter className="h-4 w-4" strokeWidth={1.5} />
-                            Direção
-                          </div>
-                        </th>
-                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
-                          <div className="flex items-center gap-2">
-                            <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
-                            Resultado
-                          </div>
-                        </th>
-                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">Alvo</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                      {filteredData.map((trade, index) => (
-                        <tr key={index} className="hover:bg-gray-800/50">
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-300 sm:pl-0">
-                            {formatDate(trade.data)}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-300">
-                            {trade.ativo}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                              trade.direcao === 'LONG'
-                                ? 'bg-green-400/10 text-green-400 ring-green-400/20'
-                                : 'bg-red-400/10 text-red-400 ring-red-400/20'
-                            }`}>
-                              {trade.direcao}
-                            </span>
-                          </td>
-                          <td className={`whitespace-nowrap px-3 py-4 text-sm ${
-                            trade.percentual >= 0 ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            {trade.percentual >= 0 ? '+' : ''}{trade.percentual}%
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                            {trade.alvo}
-                          </td>
+              <div className="mt-8 flow-root">
+                <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                  <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <table className="min-w-full divide-y divide-gray-700">
+                      <thead>
+                        <tr>
+                          <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-200 sm:pl-0">
+                            Alvo
+                          </th>
+                          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                            Qt. Operações
+                          </th>
+                          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                            % de Vitória
+                          </th>
+                          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                            % de Lucro
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-700">
+                        {(selectedMonth === 8 ? [
+                          { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: 900 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 1080 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: 880 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: 800 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: 600 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: 280 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: 320 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: 90 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: 100 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: 110 }
+                        ] : selectedMonth === 9 ? [
+                          { alvo: "Alvo 2 (20%)", operacoes: 68, vitoria: 75, lucro: 1360 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 63, vitoria: 70, lucro: 1890 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 56, vitoria: 62, lucro: 2240 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 43, vitoria: 47, lucro: 2150 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 39, vitoria: 43, lucro: 2340 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 36, vitoria: 40, lucro: 2520 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 31, vitoria: 34, lucro: 2480 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 27, lucro: 2250 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 25, lucro: 2300 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 21, vitoria: 23, lucro: 2310 }
+                        ] : selectedMonth === 10 ? [
+                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 1900 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 75, vitoria: 69, lucro: 2250 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 62, vitoria: 57, lucro: 2480 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 47, vitoria: 43, lucro: 2350 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 37, vitoria: 34, lucro: 2220 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 32, vitoria: 29, lucro: 2240 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 27, vitoria: 25, lucro: 2160 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 23, lucro: 2250 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 21, lucro: 2300 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 18, vitoria: 16, lucro: 1980 }
+                        ] : selectedMonth === 11 ? [
+                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 1900 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 2520 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 2760 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 2800 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 2820 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 3010 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 3040 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 2880 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 2900 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 2640 }
+                        ] : [
+                          { alvo: "Alvo 2 (20%)", operacoes: 134, vitoria: 88, lucro: 2680 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 105, vitoria: 69, lucro: 3150 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 89, vitoria: 58, lucro: 3560 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 89, vitoria: 58, lucro: 4450 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 77, vitoria: 50, lucro: 4620 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 63, vitoria: 41, lucro: 4410 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 55, vitoria: 36, lucro: 4400 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 49, vitoria: 32, lucro: 4410 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 42, vitoria: 27, lucro: 4200 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 32, vitoria: 21, lucro: 3520 }
+                        ]).map((target, index) => (
+                          <tr key={index} className="hover:bg-gray-800/50">
+                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
+                              {target.alvo}
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                              {target.operacoes}
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-green-400">
+                              {target.vitoria}%
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-emerald-400">
+                              +{target.lucro}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Cards de estatísticas */}
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2 mb-1">
+                      <PieChart className="h-4 w-4 text-green-300" strokeWidth={1.5} />
+                      <span className="text-sm text-gray-400">Win Rate</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-white">
+                        {taxaAcerto.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {operacoesLucrativas}/{totalOperacoes}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TrendingUp className="h-4 w-4 text-emerald-400" strokeWidth={1.5} />
+                      <span className="text-sm text-gray-400">Resultado Total</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-white">
+                        {valorizacaoTotal > 0 ? '+' : ''}{valorizacaoTotal.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/30">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BarChart3 className="h-4 w-4 text-green-400" strokeWidth={1.5} />
+                      <span className="text-sm text-gray-400">Total de Sinais</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-white">
+                        {totalOperacoes}
+                      </span>
+                      <span className="text-xs text-gray-500">operações</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabela de operações */}
+              <div className="mt-8">
+                <div className="sm:flex sm:items-center">
+                  <div className="sm:flex-auto">
+                    <h2 className="text-base font-semibold leading-6 text-white">Operações</h2>
+                    <p className="mt-2 text-sm text-gray-400">
+                      Lista detalhada de todas as operações realizadas
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-8 flow-root">
+                  <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                      <table className="min-w-full divide-y divide-gray-700">
+                        <thead>
+                          <tr>
+                            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-200 sm:pl-0">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" strokeWidth={1.5} />
+                                Data
+                              </div>
+                            </th>
+                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                              <div className="flex items-center gap-2">
+                                <Search className="h-4 w-4" strokeWidth={1.5} />
+                                Ativo
+                              </div>
+                            </th>
+                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                              <div className="flex items-center gap-2">
+                                <Filter className="h-4 w-4" strokeWidth={1.5} />
+                                Direção
+                              </div>
+                            </th>
+                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">
+                              <div className="flex items-center gap-2">
+                                <BarChart3 className="h-4 w-4" strokeWidth={1.5} />
+                                Resultado
+                              </div>
+                            </th>
+                            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-200">Alvo</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-700">
+                          {filteredData.map((trade, index) => (
+                            <tr key={index} className="hover:bg-gray-800/50">
+                              <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-300 sm:pl-0">
+                                {formatDate(trade.data)}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-300">
+                                {trade.ativo}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                  trade.direcao === 'LONG'
+                                    ? 'bg-green-400/10 text-green-400 ring-green-400/20'
+                                    : 'bg-red-400/10 text-red-400 ring-red-400/20'
+                                }`}>
+                                  {trade.direcao}
+                                </span>
+                              </td>
+                              <td className={`whitespace-nowrap px-3 py-4 text-sm ${
+                                trade.percentual >= 0 ? 'text-green-400' : 'text-red-400'
+                              }`}>
+                                {trade.percentual >= 0 ? '+' : ''}{trade.percentual}%
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                                {trade.alvo}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
