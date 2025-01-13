@@ -14,18 +14,21 @@ interface TargetAnalysis {
 }
 
 export default function TargetAnalysis() {
-  const targetData: TargetAnalysis[] = [
-    { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: 900 },
-    { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 1080 },
-    { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: 880 },
-    { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: 800 },
-    { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: 600 },
-    { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: 280 },
-    { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: 320 },
-    { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: 90 },
-    { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: 100 },
-    { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: 110 },
-  ];
+  const alvosData = {
+    8: [ // Agosto
+      { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: -10 },
+      { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 8 },
+      { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: -12 },
+      { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: -20 },
+      { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: -40 },
+      { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: -72 },
+      { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: -68 },
+      { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: -91 },
+      { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: -90 },
+      { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: -89 }
+    ],
+    // ... rest of the months data ...
+  };
 
   return (
     <div className="min-h-screen bg-[#111] text-gray-200">
@@ -85,7 +88,7 @@ export default function TargetAnalysis() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700">
-                    {targetData.map((target, index) => (
+                    {alvosData[8].map((target, index) => (
                       <tr key={index} className="hover:bg-gray-800/50">
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
                           {target.alvo}
@@ -93,11 +96,11 @@ export default function TargetAnalysis() {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                           {target.operacoes}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-green-400">
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                           {target.vitoria}%
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-emerald-400">
-                          +{target.lucro}%
+                        <td className={`whitespace-nowrap px-3 py-4 text-sm ${target.lucro >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {target.lucro >= 0 ? `+${target.lucro}` : target.lucro}%
                         </td>
                       </tr>
                     ))}

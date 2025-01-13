@@ -483,60 +483,60 @@ export default function Home() {
                       </thead>
                       <tbody className="divide-y divide-gray-700">
                         {(selectedMonth === 8 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: 900 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 1080 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: 880 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: 800 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: 600 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: 280 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: 320 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: 90 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: 100 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: 110 }
+                          { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: -10 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 8 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: -12 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: -20 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: -40 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: -72 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: -68 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: -91 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: -90 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: -89 }
                         ] : selectedMonth === 9 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 68, vitoria: 75, lucro: 1360 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 63, vitoria: 70, lucro: 1890 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 56, vitoria: 62, lucro: 2240 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 43, vitoria: 47, lucro: 2150 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 39, vitoria: 43, lucro: 2340 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 36, vitoria: 40, lucro: 2520 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 31, vitoria: 34, lucro: 2480 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 27, lucro: 2250 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 25, lucro: 2300 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 21, vitoria: 23, lucro: 2310 }
+                          { alvo: "Alvo 2 (20%)", operacoes: 68, vitoria: 75, lucro: 26 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 63, vitoria: 70, lucro: 79 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 56, vitoria: 62, lucro: 114 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 43, vitoria: 47, lucro: 105 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 39, vitoria: 43, lucro: 124 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 36, vitoria: 40, lucro: 142 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 31, vitoria: 34, lucro: 138 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 27, lucro: 115 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 25, lucro: 120 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 21, vitoria: 23, lucro: 121 }
                         ] : selectedMonth === 10 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 1900 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 75, vitoria: 69, lucro: 2250 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 62, vitoria: 57, lucro: 2480 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 47, vitoria: 43, lucro: 2350 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 37, vitoria: 34, lucro: 2220 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 32, vitoria: 29, lucro: 2240 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 27, vitoria: 25, lucro: 2160 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 23, lucro: 2250 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 21, lucro: 2300 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 18, vitoria: 16, lucro: 1980 }
+                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 60 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 122 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 146 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 150 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 152 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 171 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 174 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 158 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 160 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 134 }
                         ] : selectedMonth === 11 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 1900 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 2520 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 2760 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 2800 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 2820 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 3010 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 3040 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 2880 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 2900 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 2640 }
+                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 60 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 122 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 146 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 150 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 152 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 171 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 174 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 158 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 160 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 134 }
                         ] : [
-                          { alvo: "Alvo 2 (20%)", operacoes: 134, vitoria: 88, lucro: 2680 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 105, vitoria: 69, lucro: 3150 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 89, vitoria: 58, lucro: 3560 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 89, vitoria: 58, lucro: 4450 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 77, vitoria: 50, lucro: 4620 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 63, vitoria: 41, lucro: 4410 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 55, vitoria: 36, lucro: 4400 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 49, vitoria: 32, lucro: 4410 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 42, vitoria: 27, lucro: 4200 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 32, vitoria: 21, lucro: 3520 }
+                          { alvo: "Alvo 2 (20%)", operacoes: 134, vitoria: 88, lucro: 98 },
+                          { alvo: "Alvo 3 (40%)", operacoes: 105, vitoria: 69, lucro: 145 },
+                          { alvo: "Alvo 4 (60%)", operacoes: 89, vitoria: 58, lucro: 186 },
+                          { alvo: "Alvo 5 (80%)", operacoes: 89, vitoria: 58, lucro: 275 },
+                          { alvo: "Alvo 6 (100%)", operacoes: 77, vitoria: 50, lucro: 292 },
+                          { alvo: "Alvo 7 (120%)", operacoes: 63, vitoria: 41, lucro: 271 },
+                          { alvo: "Alvo 8 (140%)", operacoes: 55, vitoria: 36, lucro: 270 },
+                          { alvo: "Alvo 9 (160%)", operacoes: 49, vitoria: 32, lucro: 271 },
+                          { alvo: "Alvo 10 (180%)", operacoes: 42, vitoria: 27, lucro: 250 },
+                          { alvo: "Alvo 11 (200%)", operacoes: 32, vitoria: 21, lucro: 182 }
                         ]).map((target, index) => (
                           <tr key={index} className="hover:bg-gray-800/50">
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
@@ -545,11 +545,11 @@ export default function Home() {
                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                               {target.operacoes}
                             </td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-green-400">
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                               {target.vitoria}%
                             </td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-emerald-400">
-                              +{target.lucro}%
+                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
+                              {target.lucro >= 0 ? `+${target.lucro}` : target.lucro}%
                             </td>
                           </tr>
                         ))}
