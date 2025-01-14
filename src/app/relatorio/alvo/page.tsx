@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart3, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,6 +14,10 @@ interface TargetAnalysis {
 }
 
 export default function TargetAnalysis() {
+  const [capital, setCapital] = useState<string>('');
+  const [selectedTarget, setSelectedTarget] = useState<string>('');
+  const [result, setResult] = useState<number | null>(null);
+
   const alvosData = {
     8: [ // Agosto
       { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: -10 },
@@ -28,6 +32,18 @@ export default function TargetAnalysis() {
       { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: -89 }
     ],
     // ... rest of the months data ...
+  };
+
+  const calculateResult = () => {
+    if (!capital || !selectedTarget) return;
+    
+    const targetData = alvosData[8].find(t => t.alvo === selectedTarget);
+    if (!targetData) return;
+
+    const initialCapital = parseFloat(capital);
+    const profit = targetData.lucro / 100;
+    const finalValue = initialCapital * (1 + profit);
+    setResult(finalValue);
   };
 
   return (
@@ -65,6 +81,59 @@ export default function TargetAnalysis() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="mt-8 bg-gray-800/50 rounded-xl p-6 border border-gray-700/30">
+            <h2 className="text-lg font-semibold text-white mb-4">Calculadora de Resultado</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="capital" className="block text-sm font-medium text-gray-300 mb-2">
+                  Capital Inicial (R$)
+                </label>
+                <input
+                  type="number"
+                  id="capital"
+                  value={capital}
+                  onChange={(e) => setCapital(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-300"
+                  placeholder="Digite seu capital"
+                />
+              </div>
+              <div>
+                <label htmlFor="target" className="block text-sm font-medium text-gray-300 mb-2">
+                  Selecione o Alvo
+                </label>
+                <select
+                  id="target"
+                  value={selectedTarget}
+                  onChange={(e) => setSelectedTarget(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-300"
+                >
+                  <option value="">Selecione um alvo</option>
+                  {alvosData[8].map((target) => (
+                    <option key={target.alvo} value={target.alvo}>
+                      {target.alvo} ({target.lucro}%)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={calculateResult}
+                  className="w-full px-4 py-2 bg-green-300 text-black font-semibold rounded-md hover:bg-green-400 transition-colors"
+                >
+                  Calcular
+                </button>
+              </div>
+            </div>
+            {result !== null && (
+              <div className="mt-4 p-4 bg-gray-700/50 rounded-lg">
+                <p className="text-sm text-gray-300">Resultado:</p>
+                <p className="text-lg font-semibold text-white">
+                  R$ {result.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flow-root">

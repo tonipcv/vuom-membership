@@ -8,7 +8,8 @@ import {
   Calendar,
   TrendingUp,
   Filter,
-  LineChart
+  LineChart,
+  X
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,6 +46,10 @@ export default function Home() {
   const [selectedMonth, setSelectedMonth] = useState<number>(12);
   const [loading, setLoading] = useState<boolean>(true);
   const [showTargetAnalysis, setShowTargetAnalysis] = useState<boolean>(false);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [capital, setCapital] = useState<string>('');
+  const [selectedTarget, setSelectedTarget] = useState<string>('');
+  const [result, setResult] = useState<number | null>(null);
 
   useEffect(() => {
     async function getTrades() {
@@ -345,6 +350,74 @@ export default function Home() {
     return acc + valor;
   }, 0));
 
+  const calculateResult = () => {
+    if (!capital || !selectedTarget) return;
+    
+    const targetData = (selectedMonth === 8 ? [
+      { alvo: "Alvo 2", operacoes: 45, vitoria: 81, lucro: -10 },
+      { alvo: "Alvo 3", operacoes: 36, vitoria: 65, lucro: 8 },
+      { alvo: "Alvo 4", operacoes: 22, vitoria: 40, lucro: -12 },
+      { alvo: "Alvo 5", operacoes: 16, vitoria: 29, lucro: -20 },
+      { alvo: "Alvo 6", operacoes: 10, vitoria: 18, lucro: -40 },
+      { alvo: "Alvo 7", operacoes: 4, vitoria: 7, lucro: -72 },
+      { alvo: "Alvo 8", operacoes: 4, vitoria: 7, lucro: -68 },
+      { alvo: "Alvo 9", operacoes: 1, vitoria: 1, lucro: -91 },
+      { alvo: "Alvo 10", operacoes: 1, vitoria: 1, lucro: -90 },
+      { alvo: "Alvo 11", operacoes: 1, vitoria: 1, lucro: -89 }
+    ] : selectedMonth === 9 ? [
+      { alvo: "Alvo 2", operacoes: 68, vitoria: 75, lucro: 26 },
+      { alvo: "Alvo 3", operacoes: 63, vitoria: 70, lucro: 79 },
+      { alvo: "Alvo 4", operacoes: 56, vitoria: 62, lucro: 114 },
+      { alvo: "Alvo 5", operacoes: 43, vitoria: 47, lucro: 105 },
+      { alvo: "Alvo 6", operacoes: 39, vitoria: 43, lucro: 124 },
+      { alvo: "Alvo 7", operacoes: 36, vitoria: 40, lucro: 142 },
+      { alvo: "Alvo 8", operacoes: 31, vitoria: 34, lucro: 138 },
+      { alvo: "Alvo 9", operacoes: 25, vitoria: 27, lucro: 115 },
+      { alvo: "Alvo 10", operacoes: 23, vitoria: 25, lucro: 120 },
+      { alvo: "Alvo 11", operacoes: 21, vitoria: 23, lucro: 121 }
+    ] : selectedMonth === 10 ? [
+      { alvo: "Alvo 2", operacoes: 95, vitoria: 87, lucro: 60 },
+      { alvo: "Alvo 3", operacoes: 84, vitoria: 77, lucro: 122 },
+      { alvo: "Alvo 4", operacoes: 69, vitoria: 63, lucro: 146 },
+      { alvo: "Alvo 5", operacoes: 56, vitoria: 51, lucro: 150 },
+      { alvo: "Alvo 6", operacoes: 47, vitoria: 43, lucro: 152 },
+      { alvo: "Alvo 7", operacoes: 43, vitoria: 39, lucro: 171 },
+      { alvo: "Alvo 8", operacoes: 38, vitoria: 35, lucro: 174 },
+      { alvo: "Alvo 9", operacoes: 32, vitoria: 29, lucro: 158 },
+      { alvo: "Alvo 10", operacoes: 29, vitoria: 26, lucro: 160 },
+      { alvo: "Alvo 11", operacoes: 24, vitoria: 22, lucro: 134 }
+    ] : selectedMonth === 11 ? [
+      { alvo: "Alvo 2", operacoes: 95, vitoria: 87, lucro: 60 },
+      { alvo: "Alvo 3", operacoes: 84, vitoria: 77, lucro: 122 },
+      { alvo: "Alvo 4", operacoes: 69, vitoria: 63, lucro: 146 },
+      { alvo: "Alvo 5", operacoes: 56, vitoria: 51, lucro: 150 },
+      { alvo: "Alvo 6", operacoes: 47, vitoria: 43, lucro: 152 },
+      { alvo: "Alvo 7", operacoes: 43, vitoria: 39, lucro: 171 },
+      { alvo: "Alvo 8", operacoes: 38, vitoria: 35, lucro: 174 },
+      { alvo: "Alvo 9", operacoes: 32, vitoria: 29, lucro: 158 },
+      { alvo: "Alvo 10", operacoes: 29, vitoria: 26, lucro: 160 },
+      { alvo: "Alvo 11", operacoes: 24, vitoria: 22, lucro: 134 }
+    ] : selectedMonth === 12 ? [
+      { alvo: "Alvo 2", operacoes: 134, vitoria: 88, lucro: 98 },
+      { alvo: "Alvo 3", operacoes: 105, vitoria: 69, lucro: 145 },
+      { alvo: "Alvo 4", operacoes: 89, vitoria: 58, lucro: 186 },
+      { alvo: "Alvo 5", operacoes: 89, vitoria: 58, lucro: 275 },
+      { alvo: "Alvo 6", operacoes: 77, vitoria: 50, lucro: 292 },
+      { alvo: "Alvo 7", operacoes: 63, vitoria: 41, lucro: 271 },
+      { alvo: "Alvo 8", operacoes: 55, vitoria: 36, lucro: 270 },
+      { alvo: "Alvo 9", operacoes: 49, vitoria: 32, lucro: 271 },
+      { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
+      { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
+    ] : []).find(t => t.alvo === selectedTarget);
+    
+    if (!targetData) return;
+
+    const initialCapital = parseFloat(capital);
+    const profit = targetData.lucro / 100;
+    const finalValue = initialCapital * (1 + profit);
+    setResult(finalValue);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#111] flex items-center justify-center">
@@ -423,16 +496,152 @@ export default function Home() {
                 ))}
               </select>
               {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && (
-                <button
-                  onClick={() => setShowTargetAnalysis(!showTargetAnalysis)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-800 text-green-300 hover:text-green-200 rounded-md border border-gray-700 transition-colors"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  {showTargetAnalysis ? 'Voltar para Relatório' : 'Análise por Alvo'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowCalculator(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-800 text-green-300 hover:text-green-200 rounded-md border border-gray-700 transition-colors"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    Calculadora
+                  </button>
+                  <button
+                    onClick={() => setShowTargetAnalysis(!showTargetAnalysis)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-800 text-green-300 hover:text-green-200 rounded-md border border-gray-700 transition-colors"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    {showTargetAnalysis ? 'Voltar para Relatório' : 'Análise por Alvo'}
+                  </button>
+                </div>
               )}
             </nav>
           </div>
+
+          {/* Calculator Modal */}
+          {showCalculator && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 relative">
+                <button
+                  onClick={() => setShowCalculator(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+                <h2 className="text-lg font-semibold text-white mb-4">
+                  Calculadora de Resultado - {
+                    selectedMonth === 8 ? 'Agosto' : 
+                    selectedMonth === 9 ? 'Setembro' : 
+                    selectedMonth === 10 ? 'Outubro' : 
+                    selectedMonth === 11 ? 'Novembro' :
+                    'Dezembro'
+                  }
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="capital" className="block text-sm font-medium text-gray-300 mb-2">
+                      Capital Inicial (R$)
+                    </label>
+                    <input
+                      type="number"
+                      id="capital"
+                      value={capital}
+                      onChange={(e) => setCapital(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-300"
+                      placeholder="Digite seu capital"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="target" className="block text-sm font-medium text-gray-300 mb-2">
+                      Selecione o Alvo
+                    </label>
+                    <select
+                      id="target"
+                      value={selectedTarget}
+                      onChange={(e) => setSelectedTarget(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-300"
+                    >
+                      <option value="">Selecione um alvo</option>
+                      {(selectedMonth === 8 ? [
+                        { alvo: "Alvo 2", lucro: -10 },
+                        { alvo: "Alvo 3", lucro: 8 },
+                        { alvo: "Alvo 4", lucro: -12 },
+                        { alvo: "Alvo 5", lucro: -20 },
+                        { alvo: "Alvo 6", lucro: -40 },
+                        { alvo: "Alvo 7", lucro: -72 },
+                        { alvo: "Alvo 8", lucro: -68 },
+                        { alvo: "Alvo 9", lucro: -91 },
+                        { alvo: "Alvo 10", lucro: -90 },
+                        { alvo: "Alvo 11", lucro: -89 }
+                      ] : selectedMonth === 9 ? [
+                        { alvo: "Alvo 2", lucro: 26 },
+                        { alvo: "Alvo 3", lucro: 79 },
+                        { alvo: "Alvo 4", lucro: 114 },
+                        { alvo: "Alvo 5", lucro: 105 },
+                        { alvo: "Alvo 6", lucro: 124 },
+                        { alvo: "Alvo 7", lucro: 142 },
+                        { alvo: "Alvo 8", lucro: 138 },
+                        { alvo: "Alvo 9", lucro: 115 },
+                        { alvo: "Alvo 10", lucro: 120 },
+                        { alvo: "Alvo 11", lucro: 121 }
+                      ] : selectedMonth === 10 ? [
+                        { alvo: "Alvo 2", lucro: 60 },
+                        { alvo: "Alvo 3", lucro: 122 },
+                        { alvo: "Alvo 4", lucro: 146 },
+                        { alvo: "Alvo 5", lucro: 150 },
+                        { alvo: "Alvo 6", lucro: 152 },
+                        { alvo: "Alvo 7", lucro: 171 },
+                        { alvo: "Alvo 8", lucro: 174 },
+                        { alvo: "Alvo 9", lucro: 158 },
+                        { alvo: "Alvo 10", lucro: 160 },
+                        { alvo: "Alvo 11", lucro: 134 }
+                      ] : selectedMonth === 11 ? [
+                        { alvo: "Alvo 2", lucro: 60 },
+                        { alvo: "Alvo 3", lucro: 122 },
+                        { alvo: "Alvo 4", lucro: 146 },
+                        { alvo: "Alvo 5", lucro: 150 },
+                        { alvo: "Alvo 6", lucro: 152 },
+                        { alvo: "Alvo 7", lucro: 171 },
+                        { alvo: "Alvo 8", lucro: 174 },
+                        { alvo: "Alvo 9", lucro: 158 },
+                        { alvo: "Alvo 10", lucro: 160 },
+                        { alvo: "Alvo 11", lucro: 134 }
+                      ] : selectedMonth === 12 ? [
+                        { alvo: "Alvo 2", lucro: 98 },
+                        { alvo: "Alvo 3", lucro: 145 },
+                        { alvo: "Alvo 4", lucro: 186 },
+                        { alvo: "Alvo 5", lucro: 275 },
+                        { alvo: "Alvo 6", lucro: 292 },
+                        { alvo: "Alvo 7", lucro: 271 },
+                        { alvo: "Alvo 8", lucro: 270 },
+                        { alvo: "Alvo 9", lucro: 271 },
+                        { alvo: "Alvo 10", lucro: 250 },
+                        { alvo: "Alvo 11", lucro: 182 }
+                      ] : []).map((target) => (
+                        <option key={target.alvo} value={target.alvo}>
+                          {target.alvo}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={calculateResult}
+                    className="w-full px-4 py-2 bg-green-300 text-black font-semibold rounded-md hover:bg-green-400 transition-colors"
+                  >
+                    Calcular
+                  </button>
+                </div>
+                {result !== null && (
+                  <div className="mt-4 p-4 bg-gray-700/50 rounded-lg">
+                    <p className="text-sm text-gray-300">Resultado:</p>
+                    <p className="text-lg font-semibold text-white">
+                      R$ {result.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Análise por Alvo - Agosto até Dezembro */}
           {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && showTargetAnalysis ? (
@@ -483,60 +692,60 @@ export default function Home() {
                       </thead>
                       <tbody className="divide-y divide-gray-700">
                         {(selectedMonth === 8 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 45, vitoria: 81, lucro: -10 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 36, vitoria: 65, lucro: 8 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 22, vitoria: 40, lucro: -12 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 16, vitoria: 29, lucro: -20 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 10, vitoria: 18, lucro: -40 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 4, vitoria: 7, lucro: -72 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 4, vitoria: 7, lucro: -68 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 1, vitoria: 1, lucro: -91 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 1, vitoria: 1, lucro: -90 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 1, vitoria: 1, lucro: -89 }
+                          { alvo: "Alvo 2", operacoes: 45, vitoria: 81, lucro: -10 },
+                          { alvo: "Alvo 3", operacoes: 36, vitoria: 65, lucro: 8 },
+                          { alvo: "Alvo 4", operacoes: 22, vitoria: 40, lucro: -12 },
+                          { alvo: "Alvo 5", operacoes: 16, vitoria: 29, lucro: -20 },
+                          { alvo: "Alvo 6", operacoes: 10, vitoria: 18, lucro: -40 },
+                          { alvo: "Alvo 7", operacoes: 4, vitoria: 7, lucro: -72 },
+                          { alvo: "Alvo 8", operacoes: 4, vitoria: 7, lucro: -68 },
+                          { alvo: "Alvo 9", operacoes: 1, vitoria: 1, lucro: -91 },
+                          { alvo: "Alvo 10", operacoes: 1, vitoria: 1, lucro: -90 },
+                          { alvo: "Alvo 11", operacoes: 1, vitoria: 1, lucro: -89 }
                         ] : selectedMonth === 9 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 68, vitoria: 75, lucro: 26 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 63, vitoria: 70, lucro: 79 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 56, vitoria: 62, lucro: 114 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 43, vitoria: 47, lucro: 105 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 39, vitoria: 43, lucro: 124 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 36, vitoria: 40, lucro: 142 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 31, vitoria: 34, lucro: 138 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 25, vitoria: 27, lucro: 115 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 23, vitoria: 25, lucro: 120 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 21, vitoria: 23, lucro: 121 }
+                          { alvo: "Alvo 2", operacoes: 68, vitoria: 75, lucro: 26 },
+                          { alvo: "Alvo 3", operacoes: 63, vitoria: 70, lucro: 79 },
+                          { alvo: "Alvo 4", operacoes: 56, vitoria: 62, lucro: 114 },
+                          { alvo: "Alvo 5", operacoes: 43, vitoria: 47, lucro: 105 },
+                          { alvo: "Alvo 6", operacoes: 39, vitoria: 43, lucro: 124 },
+                          { alvo: "Alvo 7", operacoes: 36, vitoria: 40, lucro: 142 },
+                          { alvo: "Alvo 8", operacoes: 31, vitoria: 34, lucro: 138 },
+                          { alvo: "Alvo 9", operacoes: 25, vitoria: 27, lucro: 115 },
+                          { alvo: "Alvo 10", operacoes: 23, vitoria: 25, lucro: 120 },
+                          { alvo: "Alvo 11", operacoes: 21, vitoria: 23, lucro: 121 }
                         ] : selectedMonth === 10 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 60 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 122 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 146 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 150 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 152 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 171 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 174 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 158 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 160 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 134 }
+                          { alvo: "Alvo 2", operacoes: 95, vitoria: 87, lucro: 60 },
+                          { alvo: "Alvo 3", operacoes: 84, vitoria: 77, lucro: 122 },
+                          { alvo: "Alvo 4", operacoes: 69, vitoria: 63, lucro: 146 },
+                          { alvo: "Alvo 5", operacoes: 56, vitoria: 51, lucro: 150 },
+                          { alvo: "Alvo 6", operacoes: 47, vitoria: 43, lucro: 152 },
+                          { alvo: "Alvo 7", operacoes: 43, vitoria: 39, lucro: 171 },
+                          { alvo: "Alvo 8", operacoes: 38, vitoria: 35, lucro: 174 },
+                          { alvo: "Alvo 9", operacoes: 32, vitoria: 29, lucro: 158 },
+                          { alvo: "Alvo 10", operacoes: 29, vitoria: 26, lucro: 160 },
+                          { alvo: "Alvo 11", operacoes: 24, vitoria: 22, lucro: 134 }
                         ] : selectedMonth === 11 ? [
-                          { alvo: "Alvo 2 (20%)", operacoes: 95, vitoria: 87, lucro: 60 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 84, vitoria: 77, lucro: 122 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 69, vitoria: 63, lucro: 146 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 56, vitoria: 51, lucro: 150 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 47, vitoria: 43, lucro: 152 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 43, vitoria: 39, lucro: 171 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 38, vitoria: 35, lucro: 174 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 32, vitoria: 29, lucro: 158 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 29, vitoria: 26, lucro: 160 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 24, vitoria: 22, lucro: 134 }
+                          { alvo: "Alvo 2", operacoes: 95, vitoria: 87, lucro: 60 },
+                          { alvo: "Alvo 3", operacoes: 84, vitoria: 77, lucro: 122 },
+                          { alvo: "Alvo 4", operacoes: 69, vitoria: 63, lucro: 146 },
+                          { alvo: "Alvo 5", operacoes: 56, vitoria: 51, lucro: 150 },
+                          { alvo: "Alvo 6", operacoes: 47, vitoria: 43, lucro: 152 },
+                          { alvo: "Alvo 7", operacoes: 43, vitoria: 39, lucro: 171 },
+                          { alvo: "Alvo 8", operacoes: 38, vitoria: 35, lucro: 174 },
+                          { alvo: "Alvo 9", operacoes: 32, vitoria: 29, lucro: 158 },
+                          { alvo: "Alvo 10", operacoes: 29, vitoria: 26, lucro: 160 },
+                          { alvo: "Alvo 11", operacoes: 24, vitoria: 22, lucro: 134 }
                         ] : [
-                          { alvo: "Alvo 2 (20%)", operacoes: 134, vitoria: 88, lucro: 98 },
-                          { alvo: "Alvo 3 (40%)", operacoes: 105, vitoria: 69, lucro: 145 },
-                          { alvo: "Alvo 4 (60%)", operacoes: 89, vitoria: 58, lucro: 186 },
-                          { alvo: "Alvo 5 (80%)", operacoes: 89, vitoria: 58, lucro: 275 },
-                          { alvo: "Alvo 6 (100%)", operacoes: 77, vitoria: 50, lucro: 292 },
-                          { alvo: "Alvo 7 (120%)", operacoes: 63, vitoria: 41, lucro: 271 },
-                          { alvo: "Alvo 8 (140%)", operacoes: 55, vitoria: 36, lucro: 270 },
-                          { alvo: "Alvo 9 (160%)", operacoes: 49, vitoria: 32, lucro: 271 },
-                          { alvo: "Alvo 10 (180%)", operacoes: 42, vitoria: 27, lucro: 250 },
-                          { alvo: "Alvo 11 (200%)", operacoes: 32, vitoria: 21, lucro: 182 }
+                          { alvo: "Alvo 2", operacoes: 134, vitoria: 88, lucro: 98 },
+                          { alvo: "Alvo 3", operacoes: 105, vitoria: 69, lucro: 145 },
+                          { alvo: "Alvo 4", operacoes: 89, vitoria: 58, lucro: 186 },
+                          { alvo: "Alvo 5", operacoes: 89, vitoria: 58, lucro: 275 },
+                          { alvo: "Alvo 6", operacoes: 77, vitoria: 50, lucro: 292 },
+                          { alvo: "Alvo 7", operacoes: 63, vitoria: 41, lucro: 271 },
+                          { alvo: "Alvo 8", operacoes: 55, vitoria: 36, lucro: 270 },
+                          { alvo: "Alvo 9", operacoes: 49, vitoria: 32, lucro: 271 },
+                          { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
+                          { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
                         ]).map((target, index) => (
                           <tr key={index} className="hover:bg-gray-800/50">
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
