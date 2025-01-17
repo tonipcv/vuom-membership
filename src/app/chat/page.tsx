@@ -51,24 +51,24 @@ function Chat() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-
+      
+      // Atualiza as mensagens sempre que receber dados
+      setMessages(data);
+      
+      // Verifica se o ID da mensagem é diferente do último notificado
       if (data.length > 0) {
-        const latestMessage = data[0]; // Primeira mensagem é a mais recente
-
-        // Verifica se o ID da mensagem é diferente do último notificado
+        const latestMessage = data[0];
         if (latestMessage.id !== lastNotifiedId.current) {
-          await sendNotification(latestMessage); // Envia a notificação para nova mensagem
-          lastNotifiedId.current = latestMessage.id; // Atualiza o ID da última notificação
-          setMessages(data); // Atualiza a lista de mensagens
+          await sendNotification(latestMessage);
+          lastNotifiedId.current = latestMessage.id;
         }
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
-      setIsLoading(false); // Define `isLoading` como falso após a execução
+      setIsLoading(false);
     }
   };
-
 
   const sendNotification = async (message: Message) => {
     // Verifica se já existe um ID notificado recente para evitar duplicidade
@@ -145,14 +145,16 @@ function Chat() {
   const formatMessage = (text: string) => {
     const lines = removeEmojis(text).split('\n');
     
-    if (lines[0].includes('Take - Profit')) {
-      return null;
-    } else if (lines[0].includes('COMPRA')) {
+    if (lines[0].includes('COMPRA')) {
       return formatCompra(lines);
     } else if (lines[0].includes('VENDA')) {
       return formatVenda(lines);
     } else if (lines[0].includes('cancelado')) {
       return formatCancelado(lines);
+    } else if (lines[0].toLowerCase().includes('take - profit') || lines[0].toLowerCase().includes('take-profit') || (lines[0].toLowerCase().includes('metas') && lines[0].toLowerCase().includes('alcançadas'))) {
+      return formatTakeProfit(lines);
+    } else if (lines[0].toLowerCase().includes('aviso')) {
+      return formatAviso(lines);
     }
     
     return lines.map((line, index) => (
@@ -169,27 +171,59 @@ function Chat() {
   };
 
   const formatTakeProfit = (lines: string[]) => {
-    const [header, type, alvo, lucro, periodo] = lines;
-    return (
-      <div className="bg-gray-700 p-3 rounded-lg text-white">
-        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
-        <p className="text-xs md:text-sm mt-1">{type}</p>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <div>
-            <p className="font-semibold text-gray-400 text-xs md:text-sm">Alvo</p>
-            <p className="text-xs md:text-sm">{alvo && alvo.includes(':') ? alvo.split(':')[1].trim() : 'N/A'}</p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-400 text-xs md:text-sm">Lucro</p>
-            <p className="text-green-500 text-xs md:text-sm">{lucro && lucro.includes(':') ? lucro.split(':')[1].trim() : 'N/A'}</p>
-          </div>
-          <div>
-            <p className="font-semibold text-gray-400 text-xs md:text-sm">Período</p>
-            <p className="text-xs md:text-sm">{periodo && periodo.includes(':') ? periodo.split(':')[1].trim() : 'N/A'}</p>
+    // Extrai as informações do texto
+    const header = lines[0];
+    let type = '', lucro = '', periodo = '', alvo = '';
+    
+    lines.forEach(line => {
+      if (line.toLowerCase().includes('futuros')) type = line;
+      if (line.toLowerCase().includes('lucro')) lucro = line;
+      if (line.toLowerCase().includes('período')) periodo = line;
+      if (line.toLowerCase().includes('alvo:')) alvo = line;
+    });
+
+    // Extrai o par de trading do cabeçalho e remove o #
+    const tradingPair = header.split('Take')[0].split('Todas')[0].trim().replace('#', '');
+    
+    // Verifica se é um take-profit de todas as metas ou de alvo específico
+    const isFullTakeProfit = header.toLowerCase().includes('todas');
+
+    if (isFullTakeProfit) {
+      return (
+        <div className="bg-gray-700 p-3 rounded-lg text-white">
+          <p className="font-bold text-base md:text-lg text-green-500">LUCRO COM {tradingPair}</p>
+          <p className="text-xs text-gray-400">Graças ao time do Futuros Tech todas as metas foram alcançadas</p>
+          <div className="mt-4">
+            <p className="text-green-500 text-lg md:text-xl font-bold">
+              {lucro.includes(':') ? lucro.split(':')[1].trim() : lucro.replace('Lucro:', '').trim()}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {periodo.includes(':') ? periodo.split(':')[1].trim().replace('⏰', '') : periodo.replace('Período:', '').trim().replace('⏰', '')}
+            </p>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div className="bg-gray-700 p-3 rounded-lg text-white">
+          <p className="font-bold text-base md:text-lg text-green-500">LUCRO COM {tradingPair}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="bg-green-300 text-black px-2 py-0.5 rounded-full text-xs">
+              Alvo {alvo.includes(':') ? alvo.split(':')[1].trim() : alvo.replace('Alvo:', '').trim()}
+            </span>
+            <span className="text-xs text-gray-400">atingido</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-green-500 text-lg md:text-xl font-bold">
+              {lucro.includes(':') ? lucro.split(':')[1].trim() : lucro.replace('Lucro:', '').trim()}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {periodo.includes(':') ? periodo.split(':')[1].trim().replace('⏰', '') : periodo.replace('Período:', '').trim().replace('⏰', '')}
+            </p>
+          </div>
+        </div>
+      );
+    }
   };
   
 
@@ -266,6 +300,21 @@ function Chat() {
         {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
         {alvos.length > 0 && formatTargets(`Alvos: ${alvos.join(' - ')}`)}
         {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
+      </div>
+    );
+  };
+
+  const formatAviso = (lines: string[]) => {
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <div className="flex items-center gap-2">
+          <span className="bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full text-xs font-medium">
+            Atenção
+          </span>
+        </div>
+        <p className="mt-2 text-sm">Entrada editada, zona de entrada atualizada</p>
+        <p className="mt-2 text-xs text-gray-400">Ótimo dia a todos!</p>
+        <p className="mt-1 text-xs text-gray-400">Att Futuros Tech</p>
       </div>
     );
   };
