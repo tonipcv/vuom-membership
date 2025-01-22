@@ -118,7 +118,7 @@ export default function RestrictedChat() {
               Assine o Plano Premium para liberar o seu aplicativo
             </p>
             <a 
-              href="https://checkout.k17.com.br/pay/fip-promocional"
+              href="https://checkout.k17.com.br/subscribe/anual-ft-promocional"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors block w-full text-center shadow-lg hover:shadow-green-500/20"
