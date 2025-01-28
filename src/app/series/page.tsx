@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client'
 
 import Link from 'next/link'
@@ -6,8 +8,6 @@ import { DocumentArrowDownIcon, BookOpenIcon } from '@heroicons/react/24/outline
 import { OptimizedImage } from '../components/OptimizedImage'
 import { Navigation } from '../components/Navigation'
 import { PandaPlayer } from '../components/PandaPlayer'
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 interface Episode {
   id: number

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
 import { Navigation } from '../components/Navigation';
@@ -373,6 +376,3 @@ function Chat() {
 }
 
 export default Chat;
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
