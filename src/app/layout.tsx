@@ -50,6 +50,8 @@ export const metadata: Metadata = {
     url: 'https://app.futurostech.com',
     siteName: 'Futuros Tech',
   },
+  themeColor: '#111111',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
 };
 
 export default function RootLayout({
@@ -59,6 +61,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <meta name="theme-color" content="#111111" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <OneSignalInitializer />
