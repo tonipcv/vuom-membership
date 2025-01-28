@@ -134,7 +134,7 @@ export default function NoticiasPage() {
         </div>
       </header>
 
-      <main className="pt-14 pb-24">
+      <main className="pt-16 pb-32">
         <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
           <div className="flex justify-between items-center mb-4 px-4 md:px-0">
             <div className="flex items-center gap-2">
