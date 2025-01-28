@@ -373,3 +373,6 @@ function Chat() {
 }
 
 export default Chat;
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */

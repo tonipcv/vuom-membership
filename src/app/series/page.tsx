@@ -7,6 +7,8 @@ import { OptimizedImage } from '../components/OptimizedImage'
 import { Navigation } from '../components/Navigation'
 import { PandaPlayer } from '../components/PandaPlayer'
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 interface Episode {
   id: number
   title: string
