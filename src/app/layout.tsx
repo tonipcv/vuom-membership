@@ -1,9 +1,10 @@
 // src/app/layout.tsx
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '../contexts/ThemeContext';
-import OneSignalInitializer from '../components/OneSignalInitializer'; // ajuste o caminho conforme necessário
+import OneSignalInitializer from '../components/OneSignalInitializer';
+import FacebookPixel from '../components/FacebookPixel';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -68,6 +69,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <OneSignalInitializer />
+          <FacebookPixel />
           {children}
         </ThemeProvider>
       </body>
