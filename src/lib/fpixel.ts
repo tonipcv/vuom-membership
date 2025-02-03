@@ -1,8 +1,19 @@
 export const FB_PIXEL_ID = '1203701254882500'
 
+type FbqFunction = {
+  (action: 'init', pixelId: string): void;
+  (action: 'track', eventName: string, options?: Record<string, unknown>): void;
+  push: (args: unknown[]) => void;
+  callMethod: (args: unknown[]) => void;
+  loaded: boolean;
+  version: string;
+  queue: unknown[];
+}
+
 declare global {
   interface Window {
-    fbq: any
+    fbq: FbqFunction;
+    _fbq: FbqFunction;
   }
 }
 

@@ -9,6 +9,8 @@ const nextConfig = {
         pathname: '/katsu/news/**',
       },
     ],
+    domains: ['www.facebook.com'],
+    unoptimized: true,
   },
   reactStrictMode: true,
 }

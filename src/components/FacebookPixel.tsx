@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import Image from 'next/image';
 
 export default function FacebookPixel() {
   return (
@@ -18,12 +19,13 @@ export default function FacebookPixel() {
         `}
       </Script>
       <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: 'none' }}
+        <Image
           src="https://www.facebook.com/tr?id=1203701254882500&ev=PageView&noscript=1"
           alt=""
+          width={1}
+          height={1}
+          style={{ display: 'none' }}
+          unoptimized
         />
       </noscript>
     </>
