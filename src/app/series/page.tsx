@@ -19,26 +19,17 @@ interface Episode {
 }
 
 export default function SeriesPage() {
-  const [activeEpisode, setActiveEpisode] = useState<number | null>(null)
+  const [activeEpisode, setActiveEpisode] = useState<number | null>(1)
 
   const episodes: Episode[] = [
     {
       id: 1,
-      title: "Como pegar as entradas dos sinais da forma correta",
-      duration: "2:30",
+      title: "Como Utilizar as Entradas do Futuros Tech do Zero",
+      duration: "5:00",
       thumbnail: "/teaser-thumb.jpg",
       number: 1,
-      videoId: "35186692-adde-4280-819f-e35af9ece710"
-    },
-    {
-      id: 2,
-      title: "Como ativar as notificações do Grupo de Sinais",
-      duration: "2:30",
-      thumbnail: "/teaser-thumb2.jpg",
-      number: 2,
-      videoId: "357a2661-4c22-4244-b57e-a9be0244af50"
+      videoId: "958b2123-3e6a-449b-838a-0e34db2836da"
     }
-    // Add more episodes here
   ]
 
   const currentEpisode = episodes.find(ep => ep.id === activeEpisode)
