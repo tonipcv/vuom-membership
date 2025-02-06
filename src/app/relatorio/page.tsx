@@ -579,16 +579,16 @@ export default function Home() {
       { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
       { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
     ] : selectedMonth === 1 ? [
-      { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 20 },
-      { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 40 },
-      { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 60 },
-      { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 80 },
-      { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 100 },
-      { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 120 },
-      { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 140 },
-      { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 160 },
-      { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 180 },
-      { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 200 }
+      { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 126 },
+      { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 298 },
+      { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 436 },
+      { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 502 },
+      { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 500 },
+      { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 526 },
+      { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 558 },
+      { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 454 },
+      { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 460 },
+      { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 410 }
     ] : []).find(t => t.alvo === selectedTarget);
     
     if (!targetData) return;
@@ -939,16 +939,16 @@ export default function Home() {
                           { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
                           { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
                         ] : [
-                          { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 20 },
-                          { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 40 },
-                          { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 60 },
-                          { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 80 },
-                          { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 100 },
-                          { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 120 },
-                          { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 140 },
-                          { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 160 },
-                          { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 180 },
-                          { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 200 }
+                          { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 126 },
+                          { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 298 },
+                          { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 436 },
+                          { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 502 },
+                          { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 500 },
+                          { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 526 },
+                          { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 558 },
+                          { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 454 },
+                          { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 460 },
+                          { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 410 }
                         ]).map((target, index) => (
                           <tr key={index} className="hover:bg-gray-800/50">
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
