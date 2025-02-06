@@ -579,16 +579,16 @@ export default function Home() {
       { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
       { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
     ] : selectedMonth === 1 ? [
-      { alvo: "Alvo 2", operacoes: 134, vitoria: 88, lucro: 98 },
-      { alvo: "Alvo 3", operacoes: 105, vitoria: 69, lucro: 145 },
-      { alvo: "Alvo 4", operacoes: 89, vitoria: 58, lucro: 186 },
-      { alvo: "Alvo 5", operacoes: 89, vitoria: 58, lucro: 275 },
-      { alvo: "Alvo 6", operacoes: 77, vitoria: 50, lucro: 292 },
-      { alvo: "Alvo 7", operacoes: 63, vitoria: 41, lucro: 271 },
-      { alvo: "Alvo 8", operacoes: 55, vitoria: 36, lucro: 270 },
-      { alvo: "Alvo 9", operacoes: 49, vitoria: 32, lucro: 271 },
-      { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
-      { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
+      { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 20 },
+      { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 40 },
+      { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 60 },
+      { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 80 },
+      { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 100 },
+      { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 120 },
+      { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 140 },
+      { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 160 },
+      { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 180 },
+      { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 200 }
     ] : []).find(t => t.alvo === selectedTarget);
     
     if (!targetData) return;
@@ -676,7 +676,7 @@ export default function Home() {
                   </option>
                 ))}
               </select>
-              {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && (
+              {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12 || selectedMonth === 1) && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowCalculator(true)}
@@ -713,7 +713,7 @@ export default function Home() {
                     selectedMonth === 9 ? 'Setembro' : 
                     selectedMonth === 10 ? 'Outubro' : 
                     selectedMonth === 11 ? 'Novembro' :
-                    'Dezembro'
+                    selectedMonth === 12 ? 'Dezembro' : 'Janeiro'
                   }
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -796,7 +796,18 @@ export default function Home() {
                         { alvo: "Alvo 9", lucro: 271 },
                         { alvo: "Alvo 10", lucro: 250 },
                         { alvo: "Alvo 11", lucro: 182 }
-                      ] : []).map((target) => (
+                      ] : [
+                        { alvo: "Alvo 2", lucro: 20 },
+                        { alvo: "Alvo 3", lucro: 40 },
+                        { alvo: "Alvo 4", lucro: 60 },
+                        { alvo: "Alvo 5", lucro: 80 },
+                        { alvo: "Alvo 6", lucro: 100 },
+                        { alvo: "Alvo 7", lucro: 120 },
+                        { alvo: "Alvo 8", lucro: 140 },
+                        { alvo: "Alvo 9", lucro: 160 },
+                        { alvo: "Alvo 10", lucro: 180 },
+                        { alvo: "Alvo 11", lucro: 200 }
+                      ]).map((target) => (
                         <option key={target.alvo} value={target.alvo}>
                           {target.alvo}
                         </option>
@@ -825,7 +836,7 @@ export default function Home() {
           )}
 
           {/* Análise por Alvo - Agosto até Dezembro */}
-          {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12) && showTargetAnalysis ? (
+          {(selectedMonth === 8 || selectedMonth === 9 || selectedMonth === 10 || selectedMonth === 11 || selectedMonth === 12 || selectedMonth === 1) && showTargetAnalysis ? (
             <div className="mt-8">
               <div className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
@@ -840,7 +851,7 @@ export default function Home() {
                           selectedMonth === 9 ? 'Setembro' : 
                           selectedMonth === 10 ? 'Outubro' : 
                           selectedMonth === 11 ? 'Novembro' :
-                          'Dezembro'
+                          selectedMonth === 12 ? 'Dezembro' : 'Janeiro'
                         }
                       </h2>
                       <p className="mt-2 text-sm text-gray-400">
@@ -916,7 +927,7 @@ export default function Home() {
                           { alvo: "Alvo 9", operacoes: 32, vitoria: 29, lucro: 158 },
                           { alvo: "Alvo 10", operacoes: 29, vitoria: 26, lucro: 160 },
                           { alvo: "Alvo 11", operacoes: 24, vitoria: 22, lucro: 134 }
-                        ] : [
+                        ] : selectedMonth === 12 ? [
                           { alvo: "Alvo 2", operacoes: 134, vitoria: 88, lucro: 98 },
                           { alvo: "Alvo 3", operacoes: 105, vitoria: 69, lucro: 145 },
                           { alvo: "Alvo 4", operacoes: 89, vitoria: 58, lucro: 186 },
@@ -927,6 +938,17 @@ export default function Home() {
                           { alvo: "Alvo 9", operacoes: 49, vitoria: 32, lucro: 271 },
                           { alvo: "Alvo 10", operacoes: 42, vitoria: 27, lucro: 250 },
                           { alvo: "Alvo 11", operacoes: 32, vitoria: 21, lucro: 182 }
+                        ] : [
+                          { alvo: "Alvo 2", operacoes: 148, vitoria: 88.62, lucro: 20 },
+                          { alvo: "Alvo 3", operacoes: 117, vitoria: 70.06, lucro: 40 },
+                          { alvo: "Alvo 4", operacoes: 101, vitoria: 60.48, lucro: 60 },
+                          { alvo: "Alvo 5", operacoes: 84, vitoria: 50.30, lucro: 80 },
+                          { alvo: "Alvo 6", operacoes: 67, vitoria: 40.12, lucro: 100 },
+                          { alvo: "Alvo 7", operacoes: 58, vitoria: 34.73, lucro: 120 },
+                          { alvo: "Alvo 8", operacoes: 52, vitoria: 31.14, lucro: 140 },
+                          { alvo: "Alvo 9", operacoes: 39, vitoria: 23.35, lucro: 160 },
+                          { alvo: "Alvo 10", operacoes: 35, vitoria: 20.96, lucro: 180 },
+                          { alvo: "Alvo 11", operacoes: 29, vitoria: 17.37, lucro: 200 }
                         ]).map((target, index) => (
                           <tr key={index} className="hover:bg-gray-800/50">
                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
