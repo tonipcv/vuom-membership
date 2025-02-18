@@ -3,8 +3,10 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import supabaseClient from '../../lib/superbaseClient';
 import { useRouter } from 'next/navigation';
+import { FcGoogle } from 'react-icons/fc';
 
 // Hook personalizado para máscara de telefone
 const usePhoneMask = () => {
@@ -78,8 +80,8 @@ export default function Register() {
           setError(`Erro no cadastro: ${error.message}`);
         }
       } else if (data) {
-        // Cadastro bem-sucedido
-        router.push('/success'); // Redireciona para a página de sucesso
+        // Redireciona para a página de confirmação de e-mail
+        router.push('/confirm-email?email=' + encodeURIComponent(email));
       }
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -93,75 +95,151 @@ export default function Register() {
     }
   };
 
-  return (
-    <div className="flex flex-col min-h-screen justify-center container mx-auto px-4 py-8 md:py-20 mt-10">
-      <div className="flex justify-center mb-8">
-        <Image
-          src="/ft-icone.png"
-          alt="Logo da Empresa"
-          width={80}
-          height={40}
-          className="w-20 h-auto md:w-24 lg:w-28"
-        />
-      </div>
+  const handleGoogleSignUp = async () => {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/confirm-email`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+
+      if (error) {
+        console.error('Google signup error:', error);
+        setError('Erro ao tentar cadastrar com Google. Por favor, tente novamente.');
+      }
+
+      // O Supabase vai redirecionar automaticamente para o Google
+      // Não precisamos fazer nada aqui pois o redirectTo já está configurado
       
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto w-full">
-        <div className="mb-4">
-          <label htmlFor="name" className="block mb-2 text-sm font-bold text-white-700 font-helvetica">Nome</label>
-          <input type="text" id="name" name="name" placeholder="Digite seu nome" required className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="block mb-2 text-sm font-bold text-white-700">E-mail</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            placeholder="exemplo@email.com" 
-            required 
-            className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" 
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('Ocorreu um erro inesperado ao tentar cadastrar com Google');
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <Image
+            src="/ft-icone.png"
+            alt="Logo da Empresa"
+            width={80}
+            height={40}
+            className="w-16 h-auto"
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="phone" className="block mb-2 text-sm font-bold text-white-700">Telefone</label>
-          <input 
-            type="tel" 
-            id="phone" 
-            name="phone" 
-            placeholder="(00) 00000-0000" 
-            required 
-            onChange={handlePhoneChange}
-            className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" 
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-2 text-sm font-bold text-white-700">Senha</label>
-          <input type="password" id="password" name="password" placeholder="Digite sua senha" required className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block mb-2 text-sm font-bold text-white-700">Confirmar Senha</label>
-          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirme sua senha" required className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" />
-        </div>
-        
+
+        {/* Mensagem de erro */}
         {error && (
-          <div className="mb-4 text-red-500 text-center">
-            {error}
-          </div>
+          <div className="mb-6 text-red-500 text-center text-sm">{error}</div>
         )}
-        
-        <div className="mb-6 text-center">
-          <button 
-            type="submit" 
-            className="w-full px-4 py-2 font-bold text-black bg-green-300 rounded-full hover:bg-green-700 focus:outline-none focus:shadow-outline"
-            disabled={isSubmitting}
+
+        {/* Botão do Google */}
+        <div className="mb-6">
+          <button
+            onClick={handleGoogleSignUp}
+            type="button"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-colors duration-200 border border-gray-200"
           >
-            {isSubmitting ? 'Cadastrando...' : 'Registrar'}
+            <FcGoogle className="w-5 h-5" />
+            <span className="text-sm font-medium">Cadastrar com o Google</span>
           </button>
         </div>
-      </form>
-      <div className="text-center mt-4">
-        <Link href="/login" className="text-white-500 hover:text-white-700">
-          Já tem uma conta? Faça login
-        </Link>
+
+        {/* Separador */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-800"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-[#111] px-2 text-gray-500">ou</span>
+          </div>
+        </div>
+
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              placeholder="Nome completo"
+              required 
+              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              placeholder="E-mail"
+              required 
+              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <input 
+              type="tel" 
+              id="phone" 
+              name="phone" 
+              placeholder="Telefone"
+              required 
+              onChange={handlePhoneChange}
+              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Senha"
+              required 
+              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+            />
+          </div>
+
+          <div>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              name="confirmPassword" 
+              placeholder="Confirmar senha"
+              required 
+              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="w-full px-4 py-2 text-sm font-medium text-black bg-green-400 rounded-lg hover:bg-green-500 transition-colors duration-200"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
+          </button>
+        </form>
+
+        {/* Link para login */}
+        <div className="mt-6 text-center">
+          <Link 
+            href="/login" 
+            className="text-sm text-green-400 hover:text-green-300 transition-colors duration-200 inline-flex items-center gap-1"
+          >
+            <ArrowLeftIcon className="w-3 h-3" />
+            Voltar para login
+          </Link>
+        </div>
       </div>
     </div>
   );

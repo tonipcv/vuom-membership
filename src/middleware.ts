@@ -4,7 +4,17 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  const publicRoutes = ['/', '/forgot-password', '/reset-password', '/auth/callback'];
+  // Rotas que não precisam de autenticação
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/register',
+    '/forgot-password', 
+    '/reset-password', 
+    '/auth/callback'
+  ];
+
+  // Se for uma rota pública, permite o acesso
   if (publicRoutes.includes(req.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -13,38 +23,42 @@ export async function middleware(req: NextRequest) {
   const supabase = createMiddlewareClient({ req, res });
 
   const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) console.error("Erro ao obter sessão no middleware:", error);
-
-  console.log("Sessão do usuário no middleware:", session);
-
-  const protectedRoutes = ['/chat', '/series', '/grafico'];
   
-  if (!session && protectedRoutes.includes(req.nextUrl.pathname)) {
+  // Se houver erro ao obter a sessão, loga o erro mas permite continuar
+  if (error) {
+    console.error("Erro ao obter sessão no middleware:", error);
+    return res;
+  }
+
+  // Se não houver sessão, redireciona para login
+  if (!session) {
     console.log("Redirecionando para login, sessão não encontrada.");
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  if (session) {
+  // Rotas premium e suas versões restritas
+  const premiumRoutes = {
+    '/chat': '/chat-restrito',
+    '/series': '/series-restrito',
+    '/grafico': '/grafico-restrito'
+  };
+
+  // Se houver sessão, verifica se é premium para rotas premium
+  if (session && premiumRoutes[req.nextUrl.pathname as keyof typeof premiumRoutes]) {
     try {
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('is_premium')
         .eq('id', session.user.id)
         .single();
 
-      if (profileError) {
-        console.error("Erro ao buscar perfil no middleware:", profileError);
-      }
-
-      console.log("Perfil do usuário no middleware:", profile);
-
-      if (!profile?.is_premium && protectedRoutes.includes(req.nextUrl.pathname)) {
-        console.log("Redirecionando para /chat-restrito, usuário não premium.");
-        return NextResponse.redirect(new URL('/chat-restrito', req.url));
+      // Se não for premium, redireciona para versão restrita
+      if (!profile?.is_premium) {
+        const restrictedRoute = premiumRoutes[req.nextUrl.pathname as keyof typeof premiumRoutes];
+        return NextResponse.redirect(new URL(restrictedRoute, req.url));
       }
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
-      return res;
     }
   }
 
@@ -53,16 +67,14 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/login',
-    '/register',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)',
     '/chat',
     '/chat-restrito',
     '/series',
+    '/series-restrito',
     '/grafico',
+    '/grafico-restrito',
     '/assinatura',
-    '/forgot-password',
-    '/reset-password',
-    '/auth/callback',
-    '/cursos-restrito'
+    '/relatorio'
   ]
 };

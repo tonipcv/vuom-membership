@@ -1,156 +1,447 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client';
 
-import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
+import { Navigation } from '../components/Navigation';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import OptimizedImage from 'next/image';
 import supabaseClient from '@/src/lib/superbaseClient';
+import { withPremiumAccess } from '@/src/components/withPremiumAccess';
 
-export default function RestrictedChat() {
+interface Message {
+  id: number;
+  text: string;
+  createdAt: string;
+}
+
+function Chat() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const lastNotifiedId = useRef<number | null>(null);
   const router = useRouter();
   const supabase = supabaseClient;
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push('/');
+        } else {
+          await pollMessages();
+        }
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+
+    checkUser();
+
+    const intervalId = setInterval(pollMessages, 5000);
+    // Intervalo semanal para verificar consistência de mensagens
+    const weeklyIntervalId = setInterval(pollMessages, 7 * 24 * 60 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(weeklyIntervalId);  // Limpa o intervalo semanal
+    };
+  }, [router, supabase.auth]);
+
+  const pollMessages = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://servidor-servidor-telegram.dpbdp1.easypanel.host/messages/');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      
+      // Atualiza as mensagens sempre que receber dados
+      setMessages(data);
+      
+      // Verifica se o ID da mensagem é diferente do último notificado
+      if (data.length > 0) {
+        const latestMessage = data[0];
+        if (latestMessage.id !== lastNotifiedId.current) {
+          await sendNotification(latestMessage);
+          lastNotifiedId.current = latestMessage.id;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const mockSignals = [
-    {
-      title: "WINFUT",
-      time: "10:30",
-      status: "WIN",
-      points: "+150",
-      description: "Compra a mercado com alvo em 120.000",
-      result: "Gain +150 pontos"
-    },
-    {
-      title: "INDG24",
-      time: "11:15",
-      status: "WIN",
-      points: "+85",
-      description: "Venda a mercado com stop em 125.000",
-      result: "Gain +85 pontos"
-    },
-    {
-      title: "WINFUT",
-      time: "14:45",
-      status: "WIN",
-      points: "+120",
-      description: "Compra a mercado com alvo em 119.500",
-      result: "Gain +120 pontos"
+  const sendNotification = async (message: Message) => {
+    // Verifica se já existe um ID notificado recente para evitar duplicidade
+    const notifiedId = localStorage.getItem('lastSentNotificationId');
+    if (notifiedId === message.id.toString()) {
+      return; // Sai da função se a notificação já foi enviada
     }
-  ];
+  
+    try {
+      await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${process.env.NEXT_PUBLIC_ONESIGNAL_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+          included_segments: ['All'],
+          contents: { en: message.text },
+          headings: { en: 'Alerta de Entrada' },
+        }),
+      });
+  
+      // Armazena o ID da última notificação enviada
+      localStorage.setItem('lastSentNotificationId', message.id.toString());
+    } catch (error) {
+      console.error('Erro ao enviar notificação:', error);
+    }
+  };
+  
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'America/Sao_Paulo',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    };
+
+    const brazilTime = date.toLocaleString('pt-BR', options);
+    const [datePart] = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
+    const [nowDatePart] = now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
+
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const [yesterdayDatePart] = yesterday.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short' }).split(',');
+
+    if (datePart === nowDatePart) {
+      return `Hoje, ${brazilTime}`;
+    } else if (datePart === yesterdayDatePart) {
+      return `Ontem, ${brazilTime}`;
+    } else {
+      return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+    }
+  };
+
+  const removeEmojis = (text: string) => {
+    let modifiedText = text.replace(/🟢/g, '-');
+    modifiedText = modifiedText.replace(/️(\s*)ALAVANCAGEM ISOLADA/, '$1ALAVANCAGEM ISOLADA');
+    return modifiedText.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+  };
+
+  const formatMessage = (text: string) => {
+    const lines = removeEmojis(text).split('\n');
+    
+    if (lines[0].includes('COMPRA')) {
+      return formatCompra(lines);
+    } else if (lines[0].includes('VENDA')) {
+      return formatVenda(lines);
+    } else if (lines[0].includes('cancelado')) {
+      return formatCancelado(lines);
+    } else if (lines[0].toLowerCase().includes('take - profit') || lines[0].toLowerCase().includes('take-profit') || (lines[0].toLowerCase().includes('metas') && lines[0].toLowerCase().includes('alcançadas'))) {
+      return formatTakeProfit(lines);
+    } else if (lines[0].toLowerCase().includes('aviso')) {
+      return formatAviso(lines);
+    }
+    
+    return lines.map((line, index) => (
+      <p key={index} className={`text-${getTextColor(line)}`}>{line.trim()}</p>
+    ));
+  };
+
+
+  const getTextColor = (line: string) => {
+    if (line.toLowerCase().includes('compra')) return 'green-500 font-bold';
+    if (line.toLowerCase().includes('alvos:')) return 'white';
+    if (line.toLowerCase().startsWith('stooploss')) return 'gray-500';
+    return 'white';
+  };
+
+  const formatTakeProfit = (lines: string[]) => {
+    // Extrai as informações do texto
+    const header = lines[0];
+    let type = '', lucro = '', periodo = '', alvo = '';
+    
+    lines.forEach(line => {
+      if (line.toLowerCase().includes('futuros')) type = line;
+      if (line.toLowerCase().includes('lucro')) lucro = line;
+      if (line.toLowerCase().includes('período')) periodo = line;
+      if (line.toLowerCase().includes('alvo:')) alvo = line;
+    });
+
+    // Extrai o par de trading do cabeçalho e remove o #
+    const tradingPair = header.split('Take')[0].split('Todas')[0].trim().replace('#', '');
+    
+    // Verifica se é um take-profit de todas as metas ou de alvo específico
+    const isFullTakeProfit = header.toLowerCase().includes('todas');
+
+    if (isFullTakeProfit) {
+      return (
+        <div className="bg-gray-700 p-3 rounded-lg text-white">
+          <p className="font-bold text-base md:text-lg text-green-500">LUCRO COM {tradingPair}</p>
+          <p className="text-xs text-gray-400">Graças ao time do Futuros Tech todas as metas foram alcançadas</p>
+          <div className="mt-4">
+            <p className="text-green-500 text-lg md:text-xl font-bold">
+              {lucro.includes(':') ? lucro.split(':')[1].trim() : lucro.replace('Lucro:', '').trim()}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {periodo.includes(':') ? periodo.split(':')[1].trim().replace('⏰', '') : periodo.replace('Período:', '').trim().replace('⏰', '')}
+            </p>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="bg-gray-700 p-3 rounded-lg text-white">
+          <p className="font-bold text-base md:text-lg text-green-500">LUCRO COM {tradingPair}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="bg-green-300 text-black px-2 py-0.5 rounded-full text-xs">
+              Alvo {alvo.includes(':') ? alvo.split(':')[1].trim() : alvo.replace('Alvo:', '').trim()}
+            </span>
+            <span className="text-xs text-gray-400">atingido</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-green-500 text-lg md:text-xl font-bold">
+              {lucro.includes(':') ? lucro.split(':')[1].trim() : lucro.replace('Lucro:', '').trim()}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {periodo.includes(':') ? periodo.split(':')[1].trim().replace('⏰', '') : periodo.replace('Período:', '').trim().replace('⏰', '')}
+            </p>
+          </div>
+        </div>
+      );
+    }
+  };
+  
+
+  const formatTargets = (line: string) => {
+    const [label, targetsString] = line.split(':');
+    const targets = targetsString.split('-').map(t => t.trim()).filter(t => t !== '');
+    return (
+      <div className="mt-1">
+        <p className="text-white font-bold">{label.trim()}:</p>
+        <div className="flex flex-wrap gap-1 mt-1">
+          {targets.map((target, index) => (
+            <span key={index} className="bg-green-300 text-black px-2 py-0.5 rounded-full text-xs">
+              {target}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const formatCompra = (lines: string[]) => {
+    const [header, ...rest] = lines;
+    let entradaZona = '', alavancagem = '', stoploss = '';
+    const alvos: string[] = [];
+
+    rest.forEach(line => {
+      if (line.toLowerCase().includes('entrada na zona')) entradaZona = line;
+      if (line.toLowerCase().includes('alavancagem isolada')) alavancagem = line;
+      if (line.toLowerCase().includes('alvos:')) alvos.push(...line.split(':')[1].split('-').map(a => a.trim()));
+      if (line.toLowerCase().includes('stooploss')) stoploss = line;
+    });
+
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
+        {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
+        {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
+        {alvos.length > 0 && formatTargets(`Alvos: ${alvos.join(' - ')}`)}
+        {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
+      </div>
+    );
+  };
+
+  const formatCancelado = (lines: string[]) => {
+    const [header, ...rest] = lines;
+    let message = rest.join(' ').replace('@FuturosTech', '').trim();
+    if (message.endsWith('<')) message = message.slice(0, -1) + '.';
+    else if (!message.endsWith('.')) message += '.';
+
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <p className="font-bold text-base md:text-lg text-gray-200">{header.replace('#', '').trim()}</p>
+        <p className="mt-2 text-gray-300 text-xs md:text-sm">{message}</p>
+      </div>
+    );
+  };
+
+  const formatVenda = (lines: string[]) => {
+    const [header, ...rest] = lines;
+    let entradaZona = '', alavancagem = '', stoploss = '';
+    const alvos: string[] = [];
+
+    rest.forEach(line => {
+      if (line.toLowerCase().includes('entrada na zona')) entradaZona = line;
+      if (line.toLowerCase().includes('alavancagem isolada')) alavancagem = line;
+      if (line.toLowerCase().includes('alvos:')) alvos.push(...line.split(':')[1].split('-').map(a => a.trim()));
+      if (line.toLowerCase().includes('stooploss')) stoploss = line;
+    });
+
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <p className="font-bold text-base md:text-lg text-green-500">{header.replace('#', '').trim()}</p>
+        {entradaZona && <p className="mt-2 text-xs md:text-sm">{entradaZona}</p>}
+        {alavancagem && <p className="mt-1 text-xs md:text-sm">{alavancagem}</p>}
+        {alvos.length > 0 && formatTargets(`Alvos: ${alvos.join(' - ')}`)}
+        {stoploss && <p className="mt-2 text-gray-200 text-xs md:text-sm">{stoploss}</p>}
+      </div>
+    );
+  };
+
+  const formatAviso = (lines: string[]) => {
+    return (
+      <div className="bg-gray-700 p-3 rounded-lg text-white">
+        <div className="flex items-center gap-2">
+          <span className="bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full text-xs font-medium">
+            Atenção
+          </span>
+        </div>
+        <p className="mt-2 text-sm">Entrada editada, zona de entrada atualizada</p>
+        <p className="mt-2 text-xs text-gray-400">Ótimo dia a todos!</p>
+        <p className="mt-1 text-xs text-gray-400">Att Futuros Tech</p>
+      </div>
+    );
+  };
+
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen bg-[#111] flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-10 mb-16 mt-20 relative">
-      {/* Conteúdo base com blur sutil nos textos */}
-      <div className="relative">
-        <div className="flex justify-center mb-4">
-          <Image
-            src="/ft-icone.png"
-            alt="Logo da Empresa"
-            width={100}
-            height={50}
-          />
+    <div className="min-h-screen bg-[#111] text-gray-200">
+      {/* Header */}
+      <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
+        <div className="flex justify-center lg:justify-start items-center gap-4">
+          <Link href="/" className="flex items-center">
+            <OptimizedImage src="/ft-icone.png" alt="Futuros Tech Logo" width={40} height={40} />
+          </Link>
+          <Link 
+            href="/informacao"
+            className="text-xs px-3 py-1 bg-green-500 text-black font-medium rounded-full hover:bg-green-400 transition-colors"
+          >
+            Seja premium!
+          </Link>
         </div>
+      </header>
 
-        {/* Área dos Sinais - Versão com dados simulados */}
-        <div className="max-w-3xl mx-auto space-y-4">
-          {mockSignals.map((signal, index) => (
-            <div 
-              key={index}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-white font-bold blur-[4px]">{signal.title}</span>
-                  <span className="text-gray-400 blur-[4px]">{signal.time}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-green-500 font-semibold blur-[4px]">{signal.status}</span>
-                  <span className="text-green-400 blur-[4px]">{signal.points}</span>
-                </div>
+      <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
+        {/* Disclaimer Minimalista */}
+        <div className="px-4 md:px-0 mb-6">
+          <div className="bg-gray-900/40 backdrop-blur-sm rounded-xl p-6 border-l-4 border-l-green-400 border-t border-r border-b border-gray-800/40">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-medium text-white mb-1">Acesso Limitado</h2>
+                <p className="text-sm text-gray-300">
+                  O acesso a todas as entradas com resultados que ultrapassam <span className="text-green-400 font-medium">10.000% no mês</span> é exclusivo para membros premium.
+                </p>
               </div>
-              <div className="mt-4 space-y-2">
-                <p className="text-gray-300 blur-[4px]">{signal.description}</p>
-                <p className="text-green-400 font-medium blur-[4px]">{signal.result}</p>
-              </div>
-            </div>
-          ))}
 
-          {/* Área de Estatísticas - Sem blur */}
-          <div className="bg-gray-800 rounded-lg p-6 mt-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <h3 className="text-gray-400">Taxa de Acerto</h3>
-                <p className="text-green-500 text-2xl font-bold">92%</p>
-              </div>
-              <div className="text-center">
-                <h3 className="text-gray-400">Valorização</h3>
-                <p className="text-green-500 text-2xl font-bold">12.323%</p>
+              <div>
+                <p className="text-sm text-gray-300 mb-3">
+                  Comece agora com nosso curso gratuito e aprenda como maximizar seus resultados.
+                </p>
+                <Link 
+                  href="/series-restrito"
+                  className="text-green-400 text-sm hover:text-green-300 transition-colors duration-200 inline-flex items-center gap-1"
+                >
+                  Acessar curso gratuito
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Modal de Restrição com botão de logout adicionado */}
-      <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4 backdrop-blur-[2px]">
-        <div className="bg-gray-900 rounded-xl p-8 max-w-md w-full border border-gray-800 shadow-2xl">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-800 mb-4">
-              <svg 
-                className="h-6 w-6 text-green-500" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4 px-4 md:px-0">
+          <h1 className="font-helvetica text-xl">Alertas de Entradas:</h1>
+          <button
+            onClick={pollMessages}
+            disabled={isLoading}
+            className="p-2 text-white hover:text-green-300 focus:outline-none transition-colors duration-200"
+            title="Atualizar sinais"
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-4 text-white">Acesso Restrito</h2>
-            <p className="mb-8 text-gray-300">
-              Assine o Plano Premium para liberar o seu aplicativo
-            </p>
-            <a 
-              href="https://checkout.k17.com.br/subscribe/anual-ft-promocional"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors block w-full text-center shadow-lg hover:shadow-green-500/20"
-            >
-              Assinar Plano Premium
-            </a>
-            
-            {/* Botão de Logout */}
-            <button
-              onClick={handleSignOut}
-              className="mt-4 text-gray-400 hover:text-gray-200 transition-colors text-sm flex items-center justify-center w-full space-x-2"
-            >
-              <svg 
-                className="h-4 w-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth="2" 
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
-                />
+            ) : (
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Sair da conta</span>
-            </button>
+            )}
+          </button>
+        </div>
+
+        {/* Seção de Upgrade */}
+        <div className="px-4 md:px-0 mb-4">
+          <a 
+            href="https://checkout.k17.com.br/subscribe/anual-ft-promocional"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center px-4 py-1.5 bg-black/40 backdrop-blur-sm text-green-400 text-xs font-medium rounded-full border border-green-500/20 hover:border-green-500 hover:text-green-300 transition-all duration-200 tracking-wide"
+          >
+            FAZER UPGRADE PARA VER OS SINAIS
+          </a>
+        </div>
+
+        {/* Mensagens com Blur mais intenso */}
+        <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)] relative">
+          <div className="space-y-2 blur-[8px] select-none pointer-events-none">
+            {messages.map((message, index) => {
+              const formattedMessage = formatMessage(message.text);
+              if (!formattedMessage) return null;
+              return (
+                <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700">
+                  <div className="text-sm md:text-base">{formattedMessage}</div>
+                  <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      <BottomNavigation />
     </div>
   );
-} 
+}
+
+export default withPremiumAccess(Chat, { 
+  blurContent: false,
+  showModal: false
+});

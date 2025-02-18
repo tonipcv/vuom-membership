@@ -1,23 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ChartBarIcon,
   PlayIcon,
   ArrowRightOnRectangleIcon,
   BanknotesIcon,
   DocumentChartBarIcon,
+  HomeIcon,
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 import supabaseClient from '@/src/lib/superbaseClient';
 
 export function Navigation() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = supabaseClient;
+
+  useEffect(() => {
+    checkPremiumStatus();
+  }, []);
+
+  const checkPremiumStatus = async () => {
+    try {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('is_premium')
+          .eq('id', user.id)
+          .single();
+
+        setIsPremium(profile?.is_premium || false);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status premium:', error);
+    }
+  };
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -33,50 +56,46 @@ export function Navigation() {
     setShowLogoutModal(false);
   };
 
+  const navigationItems = [
+    {
+      href: isPremium ? '/grafico' : '/grafico-restrito',
+      icon: ChartBarIcon,
+      label: 'Gráfico'
+    },
+    {
+      href: isPremium ? '/chat' : '/chat-restrito',
+      icon: BanknotesIcon,
+      label: 'Entradas'
+    },
+    {
+      href: '/relatorio',
+      icon: DocumentChartBarIcon,
+      label: 'Relatório'
+    },
+    {
+      href: isPremium ? '/series' : '/series-restrito',
+      icon: PlayIcon,
+      label: 'Tutorial'
+    }
+  ];
+
   return (
     <>
       <nav className="fixed bottom-0 w-full bg-[#111]/90 backdrop-blur-sm border-t border-gray-800">
         <div className="max-w-screen-xl mx-auto px-4">
           <div className="flex justify-around items-center h-16">
-            <Link
-              href="/grafico"
-              className={`flex flex-col items-center ${
-                pathname === '/grafico' ? 'text-green-300' : 'text-gray-400'
-              } transition-colors hover:text-green-300`}
-            >
-              <ChartBarIcon className="w-6 h-6" />
-              <span className="text-xs mt-1">Gráfico</span>
-            </Link>
-
-            <Link
-              href="/chat"
-              className={`flex flex-col items-center ${
-                pathname === '/chat' ? 'text-green-300' : 'text-gray-400'
-              } transition-colors hover:text-green-300`}
-            >
-              <BanknotesIcon className="w-6 h-6" />
-              <span className="text-xs mt-1">Entradas</span>
-            </Link>
-
-            <Link
-              href="/relatorio"
-              className={`flex flex-col items-center ${
-                pathname === '/relatorio' ? 'text-green-300' : 'text-gray-400'
-              } transition-colors hover:text-green-300`}
-            >
-              <DocumentChartBarIcon className="w-6 h-6" />
-              <span className="text-xs mt-1">Relatório</span>
-            </Link>
-
-            <Link
-              href="/series"
-              className={`flex flex-col items-center ${
-                pathname === '/series' ? 'text-green-300' : 'text-gray-400'
-              } transition-colors hover:text-green-300`}
-            >
-              <PlayIcon className="w-6 h-6" />
-              <span className="text-xs mt-1">Tutorial</span>
-            </Link>
+            {navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center ${
+                  pathname === item.href ? 'text-green-300' : 'text-gray-400'
+                } transition-colors hover:text-green-300`}
+              >
+                <item.icon className="w-6 h-6" />
+                <span className="text-xs mt-1">{item.label}</span>
+              </Link>
+            ))}
 
             <button
               onClick={handleLogoutClick}
@@ -89,7 +108,6 @@ export function Navigation() {
         </div>
       </nav>
 
-      {/* Modal de Confirmação de Logout */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">

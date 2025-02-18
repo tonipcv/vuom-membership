@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
 import supabaseClient from '@/src/lib/superbaseClient';
+import { withPremiumAccess } from '@/src/components/withPremiumAccess';
 
 interface Message {
   id: number;
@@ -22,14 +23,19 @@ function Chat() {
   const lastNotifiedId = useRef<number | null>(null);
   const router = useRouter();
   const supabase = supabaseClient;
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/');
-      } else {
-        pollMessages();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push('/');
+        } else {
+          await pollMessages();
+        }
+      } finally {
+        setIsInitialLoading(false);
       }
     };
 
@@ -322,57 +328,58 @@ function Chat() {
     );
   };
 
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen bg-[#111] flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#111] text-gray-200">
-      <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
-        <div className="flex justify-center lg:justify-start">
-          <Link href="/" className="flex items-center">
-            <OptimizedImage src="/ft-icone.png" alt="Futuros Tech Logo" width={40} height={40} />
-          </Link>
-        </div>
-      </header>
+    <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
+      <div className="flex justify-between items-center mb-4 px-4 md:px-0">
+        <h1 className="font-helvetica text-xl">Alertas de Entradas:</h1>
+        <button
+          onClick={pollMessages}
+          disabled={isLoading}
+          className="p-2 text-white hover:text-green-300 focus:outline-none transition-colors duration-200"
+          title="Atualizar sinais"
+        >
+          {isLoading ? (
+            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          )}
+        </button>
+      </div>
 
-      <main className="pt-14 pb-24">
-        <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
-          <div className="flex justify-between items-center mb-4 px-4 md:px-0">
-            <h1 className="font-helvetica text-xl">Alertas de Entradas:</h1>
-            <button
-              onClick={pollMessages}
-              disabled={isLoading}
-              className="p-2 text-white hover:text-green-300 focus:outline-none transition-colors duration-200"
-              title="Atualizar sinais"
-            >
-              {isLoading ? (
-                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              )}
-            </button>
-          </div>
-
-          <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)]">
-            {messages.map((message, index) => {
-              const formattedMessage = formatMessage(message.text);
-              if (!formattedMessage) return null;
-              return (
-                <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700 mb-2">
-                  <div className="text-sm md:text-base">{formattedMessage}</div>
-                  <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </main>
-
-      <Navigation />
+      <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)]">
+        {messages.map((message, index) => {
+          const formattedMessage = formatMessage(message.text);
+          if (!formattedMessage) return null;
+          return (
+            <div key={index} className="bg-gray-700 p-3 rounded-2xl border border-gray-700 mb-2">
+              <div className="text-sm md:text-base">{formattedMessage}</div>
+              <p className="text-gray-400 text-xs mt-1">{formatDate(message.createdAt)}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-export default Chat;
+export default withPremiumAccess(Chat, { 
+  blurContent: true, 
+  showModal: true 
+});
