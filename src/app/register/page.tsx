@@ -4,9 +4,9 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import supabaseClient from '../../lib/superbaseClient';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
+import { signIn } from "next-auth/react";
 
 // Hook personalizado para máscara de telefone
 const usePhoneMask = () => {
@@ -57,32 +57,28 @@ export default function Register() {
     }
 
     try {
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            phone,
-          }
-        }
+      // Substituir chamada do Supabase por sua API de registro
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          phone,
+        }),
       });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        if (error.message.includes('not authorized')) {
-          setError('Este endereço de e-mail não está autorizado para cadastro. Por favor, use um e-mail válido ou entre em contato com o suporte.');
-        } else if (error.message.includes('User already registered')) {
-          setError('Este e-mail já está registrado. Por favor, tente fazer login ou use outro e-mail.');
-        } else if (error.message.includes('Email confirmation required')) {
-          setError('É necessário confirmar o e-mail antes de concluir o cadastro. Por favor, verifique sua caixa de entrada.');
-        } else {
-          setError(`Erro no cadastro: ${error.message}`);
-        }
-      } else if (data) {
-        // Redireciona para a página de confirmação de e-mail
-        router.push('/confirm-email?email=' + encodeURIComponent(email));
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
       }
+
+      // Redirecionar para confirmação de email
+      router.push('/confirm-email?email=' + encodeURIComponent(email));
     } catch (err) {
       console.error('Unexpected error:', err);
       if (err instanceof Error) {
@@ -95,31 +91,8 @@ export default function Register() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    try {
-      const { data, error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/confirm-email`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        }
-      });
-
-      if (error) {
-        console.error('Google signup error:', error);
-        setError('Erro ao tentar cadastrar com Google. Por favor, tente novamente.');
-      }
-
-      // O Supabase vai redirecionar automaticamente para o Google
-      // Não precisamos fazer nada aqui pois o redirectTo já está configurado
-      
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      setError('Ocorreu um erro inesperado ao tentar cadastrar com Google');
-    }
+  const handleGoogleSignUp = () => {
+    signIn('google', { callbackUrl: '/confirm-email' });
   };
 
   return (

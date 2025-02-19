@@ -4,25 +4,42 @@ import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import supabaseClient from '@/src/lib/superbaseClient';
 
 
 export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
-  const supabase = supabaseClient;
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
+    setError('');
+    setSuccess('');
 
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-    router.push('/forgot-password/confirmation?email=' + encodeURIComponent(email));
-    setIsSubmitting(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Algo deu errado');
+      }
+
+      setSuccess('Se o email existir, você receberá as instruções de recuperação.');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Algo deu errado');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

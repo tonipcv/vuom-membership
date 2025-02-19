@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { signIn } from "next-auth/react"
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
 
@@ -12,7 +12,6 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = supabaseClient;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,43 +23,26 @@ export default function Login() {
     const password = formData.get('password') as string;
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const result = await signIn('credentials', {
         email,
         password,
+        redirect: false,
       });
 
-      if (signInError) throw signInError;
+      if (result?.error) {
+        throw new Error(result.error);
+      }
 
-      // Redirecionar para a página de chat após o login bem-sucedido
       router.push('/chat');
     } catch (error) {
-      if (error instanceof Error) {
-        setError(`Falha no login: ${error.message}`);
-      } else {
-        setError('Falha no login. Por favor, verifique suas credenciais.');
-      }
+      setError(error instanceof Error ? error.message : 'Erro ao fazer login');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(`Falha no login com Google: ${error.message}`);
-      } else {
-        setError('Falha no login com Google. Por favor, tente novamente.');
-      }
-    }
+  const handleGoogleLogin = () => {
+    signIn('google', { callbackUrl: '/chat' });
   };
 
   return (

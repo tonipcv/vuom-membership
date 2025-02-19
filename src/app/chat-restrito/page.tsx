@@ -4,12 +4,11 @@
 'use client';
 
 import { Navigation } from '../components/Navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
-import supabaseClient from '@/src/lib/superbaseClient';
-import { withPremiumAccess } from '@/src/components/withPremiumAccess';
+import { useSession } from "next-auth/react";
 
 interface Message {
   id: number;
@@ -17,19 +16,17 @@ interface Message {
   createdAt: string;
 }
 
-function Chat() {
+export default function ChatRestrito() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const lastNotifiedId = useRef<number | null>(null);
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        if (!session) {
           router.push('/');
         } else {
           await pollMessages();
@@ -42,14 +39,13 @@ function Chat() {
     checkUser();
 
     const intervalId = setInterval(pollMessages, 5000);
-    // Intervalo semanal para verificar consistência de mensagens
     const weeklyIntervalId = setInterval(pollMessages, 7 * 24 * 60 * 60 * 1000);
 
     return () => {
       clearInterval(intervalId);
-      clearInterval(weeklyIntervalId);  // Limpa o intervalo semanal
+      clearInterval(weeklyIntervalId);
     };
-  }, [router, supabase.auth]);
+  }, [router, session]);
 
   const pollMessages = async () => {
     if (isLoading) return;
@@ -64,50 +60,12 @@ function Chat() {
       // Atualiza as mensagens sempre que receber dados
       setMessages(data);
       
-      // Verifica se o ID da mensagem é diferente do último notificado
-      if (data.length > 0) {
-        const latestMessage = data[0];
-        if (latestMessage.id !== lastNotifiedId.current) {
-          await sendNotification(latestMessage);
-          lastNotifiedId.current = latestMessage.id;
-        }
-      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const sendNotification = async (message: Message) => {
-    // Verifica se já existe um ID notificado recente para evitar duplicidade
-    const notifiedId = localStorage.getItem('lastSentNotificationId');
-    if (notifiedId === message.id.toString()) {
-      return; // Sai da função se a notificação já foi enviada
-    }
-  
-    try {
-      await fetch('https://onesignal.com/api/v1/notifications', {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${process.env.NEXT_PUBLIC_ONESIGNAL_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          included_segments: ['All'],
-          contents: { en: message.text },
-          headings: { en: 'Alerta de Entrada' },
-        }),
-      });
-  
-      // Armazena o ID da última notificação enviada
-      localStorage.setItem('lastSentNotificationId', message.id.toString());
-    } catch (error) {
-      console.error('Erro ao enviar notificação:', error);
-    }
-  };
-  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -342,6 +300,23 @@ function Chat() {
 
   return (
     <div className="min-h-screen bg-[#111] text-gray-200">
+      {/* Disclaimer Minimalista */}
+      <div className="fixed top-[4.5rem] left-1/2 -translate-x-1/2 z-10 px-4 w-full max-w-sm">
+        <div className="bg-black/60 backdrop-blur-sm rounded-full py-1.5 px-4 flex items-center justify-between gap-3">
+          <p className="text-xs text-gray-300 truncate">
+            Versão gratuita. Acesso limitado
+          </p>
+          <a 
+            href="https://checkout.k17.com.br/subscribe/anual-ft-promocional"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-400 text-xs font-medium hover:text-green-300 transition-colors whitespace-nowrap"
+          >
+            Fazer Upgrade
+          </a>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="fixed top-0 w-full bg-[#111]/90 backdrop-blur-sm z-50 px-4 py-3">
         <div className="flex justify-center lg:justify-start items-center gap-4">
@@ -358,35 +333,6 @@ function Chat() {
       </header>
 
       <div className="w-full md:w-1/2 lg:w-1/2 md:mx-auto lg:mx-auto h-[calc(100vh-8.5rem)]">
-        {/* Disclaimer Minimalista */}
-        <div className="px-4 md:px-0 mb-6">
-          <div className="bg-gray-900/40 backdrop-blur-sm rounded-xl p-6 border-l-4 border-l-green-400 border-t border-r border-b border-gray-800/40">
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-lg font-medium text-white mb-1">Acesso Limitado</h2>
-                <p className="text-sm text-gray-300">
-                  O acesso a todas as entradas com resultados que ultrapassam <span className="text-green-400 font-medium">10.000% no mês</span> é exclusivo para membros premium.
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-300 mb-3">
-                  Comece agora com nosso curso gratuito e aprenda como maximizar seus resultados.
-                </p>
-                <Link 
-                  href="/series-restrito"
-                  className="text-green-400 text-sm hover:text-green-300 transition-colors duration-200 inline-flex items-center gap-1"
-                >
-                  Acessar curso gratuito
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Header */}
         <div className="flex justify-between items-center mb-4 px-4 md:px-0">
           <h1 className="font-helvetica text-xl">Alertas de Entradas:</h1>
@@ -409,18 +355,6 @@ function Chat() {
           </button>
         </div>
 
-        {/* Seção de Upgrade */}
-        <div className="px-4 md:px-0 mb-4">
-          <a 
-            href="https://checkout.k17.com.br/subscribe/anual-ft-promocional"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center px-4 py-1.5 bg-black/40 backdrop-blur-sm text-green-400 text-xs font-medium rounded-full border border-green-500/20 hover:border-green-500 hover:text-green-300 transition-all duration-200 tracking-wide"
-          >
-            FAZER UPGRADE PARA VER OS SINAIS
-          </a>
-        </div>
-
         {/* Mensagens com Blur mais intenso */}
         <div className="rounded-lg shadow-md p-4 overflow-y-auto mx-4 md:mx-0 h-[calc(100%-3rem)] relative">
           <div className="space-y-2 blur-[8px] select-none pointer-events-none">
@@ -437,11 +371,9 @@ function Chat() {
           </div>
         </div>
       </div>
+
+      {/* Adicionar o componente Navigation */}
+      <Navigation />
     </div>
   );
 }
-
-export default withPremiumAccess(Chat, { 
-  blurContent: false,
-  showModal: false
-});

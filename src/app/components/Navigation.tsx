@@ -3,39 +3,33 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from "next-auth/react";
 import {
   ChartBarIcon,
   PlayIcon,
   ArrowRightOnRectangleIcon,
   BanknotesIcon,
   DocumentChartBarIcon,
-  HomeIcon,
-  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
-import supabaseClient from '@/src/lib/superbaseClient';
 
 export function Navigation() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
 
   useEffect(() => {
     checkPremiumStatus();
-  }, []);
+  }, [session]);
 
   const checkPremiumStatus = async () => {
     try {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('is_premium')
-          .eq('id', user.id)
-          .single();
-
-        setIsPremium(profile?.is_premium || false);
+      if (session?.user) {
+        // Fazer chamada à API para verificar status premium
+        const response = await fetch('/api/user/premium-status');
+        const data = await response.json();
+        setIsPremium(data.isPremium || false);
       }
     } catch (error) {
       console.error('Erro ao verificar status premium:', error);
@@ -48,8 +42,7 @@ export function Navigation() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      router.push('/');
+      await signOut({ callbackUrl: '/' });
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }

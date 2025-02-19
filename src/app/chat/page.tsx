@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { useSession } from "next-auth/react";
 import { withPremiumAccess } from '@/src/components/withPremiumAccess';
 
 interface Message {
@@ -20,16 +20,14 @@ interface Message {
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const lastNotifiedId = useRef<number | null>(null);
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        if (!session) {
           router.push('/');
         } else {
           await pollMessages();
@@ -47,9 +45,9 @@ function Chat() {
 
     return () => {
       clearInterval(intervalId);
-      clearInterval(weeklyIntervalId);  // Limpa o intervalo semanal
+      clearInterval(weeklyIntervalId);
     };
-  }, [router, supabase.auth]);
+  }, [router, session]);
 
   const pollMessages = async () => {
     if (isLoading) return;
@@ -64,50 +62,12 @@ function Chat() {
       // Atualiza as mensagens sempre que receber dados
       setMessages(data);
       
-      // Verifica se o ID da mensagem é diferente do último notificado
-      if (data.length > 0) {
-        const latestMessage = data[0];
-        if (latestMessage.id !== lastNotifiedId.current) {
-          await sendNotification(latestMessage);
-          lastNotifiedId.current = latestMessage.id;
-        }
-      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const sendNotification = async (message: Message) => {
-    // Verifica se já existe um ID notificado recente para evitar duplicidade
-    const notifiedId = localStorage.getItem('lastSentNotificationId');
-    if (notifiedId === message.id.toString()) {
-      return; // Sai da função se a notificação já foi enviada
-    }
-  
-    try {
-      await fetch('https://onesignal.com/api/v1/notifications', {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${process.env.NEXT_PUBLIC_ONESIGNAL_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          included_segments: ['All'],
-          contents: { en: message.text },
-          headings: { en: 'Alerta de Entrada' },
-        }),
-      });
-  
-      // Armazena o ID da última notificação enviada
-      localStorage.setItem('lastSentNotificationId', message.id.toString());
-    } catch (error) {
-      console.error('Erro ao enviar notificação:', error);
-    }
-  };
-  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

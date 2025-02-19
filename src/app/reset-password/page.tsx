@@ -3,7 +3,6 @@
 import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import supabaseClient from '@/src/lib/superbaseClient';
 
 // Modifique a função validatePassword para retornar um objeto com todos os status
 const validatePassword = (password: string) => {
@@ -30,7 +29,6 @@ export default function ResetPassword() {
     hasSpecialChar: false
   });
   const router = useRouter();
-  const supabase = supabaseClient;
 
   // Adicione esta função para atualizar as validações quando a senha mudar
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,12 +59,18 @@ export default function ResetPassword() {
     }
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
       });
 
-      if (updateError) {
-        throw updateError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message);
       }
 
       setMessage('Senha atualizada com sucesso!');

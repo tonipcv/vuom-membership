@@ -10,7 +10,7 @@ interface PremiumModalProps {
 export default function PremiumModal({ onClose }: PremiumModalProps) {
   const router = useRouter();
 
-  const handleSignOut = async () => {
+  const _handleSignOut = async () => {
     await supabaseClient.auth.signOut();
     router.push('/login');
   };

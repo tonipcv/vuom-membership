@@ -7,7 +7,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ProfileHeader from '../../components/ProfileHeader';
 import StatCard from '../../components/StatCard';
 import ActivityFeed from '../../components/ActivityFeed';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { useSession } from "next-auth/react";
 
 interface UserProfile {
   id: string;
@@ -22,24 +22,20 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<UserProfile | null>(null);
   const router = useRouter();
-  const supabase = supabaseClient;
   const { theme } = useTheme();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-        } else {
+      if (session?.user) {
+        const response = await fetch('/api/profile');
+        const data = await response.json();
+        
+        if (response.ok) {
           setProfile(data);
           setEditedProfile(data);
+        } else {
+          console.error('Error fetching profile:', data);
         }
       } else {
         router.push('/login');
@@ -47,7 +43,7 @@ export default function Profile() {
     };
 
     fetchProfile();
-  }, [supabase, router]);
+  }, [session, router]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -60,16 +56,20 @@ export default function Profile() {
 
   const handleSave = async () => {
     if (editedProfile) {
-      const { error } = await supabase
-        .from('profiles')
-        .update(editedProfile)
-        .eq('id', editedProfile.id);
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedProfile),
+      });
 
-      if (error) {
-        console.error('Error updating profile:', error);
-      } else {
-        setProfile(editedProfile);
+      if (response.ok) {
+        const updatedProfile = await response.json();
+        setProfile(updatedProfile);
         setIsEditing(false);
+      } else {
+        console.error('Error updating profile:', response.statusText);
       }
     }
   };

@@ -28,7 +28,7 @@ export function withPremiumAccess<P extends object>(
 
     useEffect(() => {
       checkPremiumStatus();
-    }, []);
+    }, [checkPremiumStatus]);
 
     const checkPremiumStatus = async () => {
       try {

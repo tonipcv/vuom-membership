@@ -2,24 +2,23 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import supabaseClient from '../lib/superbaseClient';
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        router.push('/chat');  // Alterado de '/dash' para '/chat'
+      if (session) {
+        router.push('/chat');
       } else {
         router.push('/login');
       }
     };
 
     checkUser();
-  }, [router, supabase.auth]);
+  }, [router, session]);
 
   return (
     <div className="flex justify-center items-center min-h-screen">

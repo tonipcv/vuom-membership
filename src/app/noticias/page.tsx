@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { useSession } from "next-auth/react";
 
 interface News {
   id: number;
@@ -25,12 +25,11 @@ export default function NoticiasPage() {
   const [selectedNews, setSelectedNews] = useState<News | null>(null);
   const itemsPerPage = 10;
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      if (!session) {
         router.push('/');
       } else {
         fetchNews();
@@ -38,7 +37,7 @@ export default function NoticiasPage() {
     };
 
     checkUser();
-  }, [router, supabase.auth]);
+  }, [router, session]);
 
   const fetchNews = async () => {
     setIsLoading(true);
