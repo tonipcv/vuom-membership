@@ -1,18 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import supabaseClient from '../lib/superbaseClient';
+import { useSession } from "next-auth/react";
 
-
-const BottomNavigation = () => {
+export function BottomNavigation() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = supabaseClient;
+  const { data: session } = useSession();
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
       // Limpar qualquer estado local relacionado à autenticação
       localStorage.removeItem('supabase.auth.token');
       
@@ -52,6 +50,4 @@ const BottomNavigation = () => {
       </div>
     </nav>
   );
-};
-
-export default BottomNavigation;
+}

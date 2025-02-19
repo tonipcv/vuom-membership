@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
+import { BottomNavigation } from '../../components/BottomNavigation';
 
 export default function Courses() {
   return (

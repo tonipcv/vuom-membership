@@ -5,12 +5,9 @@ import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
-import supabaseClient from '@/src/lib/superbaseClient';
-
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
-  const supabase = supabaseClient;
   const [emailSent, setEmailSent] = useState(false);
   
   let email: string | null = null;
@@ -19,20 +16,23 @@ function ConfirmationContent() {
   } else {
     console.error("Parâmetros de busca não encontrados.");
   }
-  
-  if (email) {
-
-  } else {
-    console.warn("Email não encontrado nos parâmetros de busca.");
-  }
 
   useEffect(() => {     
     const sendResetEmail = async () => {
       if (email && !emailSent) {
         try {
-          await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/update-password`
+          const response = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
           });
+
+          if (!response.ok) {
+            throw new Error('Erro ao enviar email de recuperação');
+          }
+
           setEmailSent(true);
         } catch (error) {
           console.error("Erro ao enviar e-mail de redefinição de senha:", error);
@@ -41,7 +41,7 @@ function ConfirmationContent() {
     };
   
     sendResetEmail();
-  }, [email, emailSent, supabase.auth]);
+  }, [email, emailSent]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">

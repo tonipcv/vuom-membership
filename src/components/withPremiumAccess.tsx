@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { useSession } from "next-auth/react";
 import PremiumModal from './PremiumModal';
 import LoadingScreen from './LoadingScreen';
-import { Navigation } from '@/src/app/components/Navigation';
+import { Navigation } from '@/app/components/Navigation';
 
 interface PremiumAccessOptions {
   blurContent?: boolean;
@@ -26,27 +26,12 @@ export function withPremiumAccess<P extends object>(
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    useEffect(() => {
-      checkPremiumStatus();
-    }, [checkPremiumStatus]);
-
     const checkPremiumStatus = async () => {
       try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('is_premium')
-          .eq('id', user.id)
-          .single();
-
-        setIsPremium(profile?.is_premium || false);
-        if (!profile?.is_premium) {
+        const response = await fetch('/api/user/premium-status');
+        const data = await response.json();
+        setIsPremium(data.isPremium || false);
+        if (!data.isPremium) {
           setShowPremiumModal(true);
         }
       } catch (error) {
@@ -55,6 +40,10 @@ export function withPremiumAccess<P extends object>(
         setIsLoading(false);
       }
     };
+
+    useEffect(() => {
+      checkPremiumStatus();
+    }, []);
 
     if (isLoading) {
       return <LoadingScreen />;

@@ -1,94 +1,105 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Verificando seu email...');
+  const [message, setMessage] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token') || '';
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('Token não fornecido');
+      setMessage('Token de verificação não encontrado');
       return;
     }
 
-    async function verifyEmail() {
+    const verifyEmail = async () => {
       try {
-        const response = await fetch(`/api/auth/verify-email?token=${token}`);
-        const data = await response.json();
+        const response = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
 
         if (response.ok) {
           setStatus('success');
           setMessage('Email verificado com sucesso!');
-          // Redirecionar para login após 3 segundos
           setTimeout(() => {
-            router.push('/login?verified=true');
+            router.push('/login');
           }, 3000);
         } else {
+          const data = await response.json();
           setStatus('error');
-          setMessage(data.message || 'Erro ao verificar email');
+          setMessage(data.error || 'Erro ao verificar email');
         }
       } catch (error) {
         setStatus('error');
         setMessage('Erro ao verificar email');
       }
-    }
+    };
 
     verifyEmail();
   }, [token, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#111] px-4">
       <div className="max-w-md w-full space-y-8 bg-black p-8 rounded-lg border border-zinc-800">
-        <div>
-          <div className="flex justify-center">
-            <Image
-              src="/ft-icone.png"
-              alt="Logo"
-              width={80}
-              height={80}
-              className="mb-4"
-            />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+        <div className="flex justify-center">
+          <Image
+            src="/ft-icone.png"
+            alt="Logo"
+            width={80}
+            height={80}
+            className="mb-4"
+          />
+        </div>
+
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">
             Verificação de Email
           </h2>
           
-          <div className="mt-4 text-center">
-            {status === 'loading' && (
-              <div className="animate-pulse text-zinc-400">{message}</div>
-            )}
-            
-            {status === 'success' && (
-              <div className="text-green-500">
-                {message}
-                <p className="mt-2 text-sm text-zinc-400">
-                  Redirecionando para a página de login...
-                </p>
-              </div>
-            )}
-            
-            {status === 'error' && (
-              <div>
-                <p className="text-red-500">{message}</p>
-                <Link 
-                  href="/login" 
-                  className="mt-4 inline-block text-sm text-zinc-200 hover:text-green-400 transition-colors duration-200"
-                >
-                  Voltar para o login
-                </Link>
-              </div>
-            )}
-          </div>
+          {status === 'loading' && (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+            </div>
+          )}
+          
+          {status === 'success' && (
+            <p className="text-green-400">{message}</p>
+          )}
+          
+          {status === 'error' && (
+            <>
+              <p className="text-red-400 mb-4">{message}</p>
+              <Link 
+                href="/login" 
+                className="text-green-400 hover:text-green-300 transition-colors duration-200"
+              >
+                Voltar para o login
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 } 

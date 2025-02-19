@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
-import nodemailer from 'nodemailer'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
@@ -60,39 +60,7 @@ export async function POST(request: Request) {
                    'https://wallet.k17.com.br'
     const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    })
-
-    // Teste a conexão antes de enviar
-    try {
-      await transporter.verify()
-      console.log('Conexão SMTP verificada com sucesso')
-    } catch (error) {
-      console.error('Erro na verificação SMTP:', error)
-      return new NextResponse(
-        JSON.stringify({ 
-          error: 'Erro na configuração do email',
-          details: error instanceof Error ? error.message : 'Erro desconhecido'
-        }),
-        { 
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    await transporter.sendMail({
-      from: {
-        name: process.env.EMAIL_FROM_NAME || 'Katsu',
-        address: process.env.EMAIL_FROM_ADDRESS || 'oi@k17.com.br'
-      },
+    await sendEmail({
       to: email,
       subject: 'Recuperação de Senha',
       html: `

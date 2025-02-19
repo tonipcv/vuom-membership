@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import OptimizedImage from 'next/image';
 import { useSession } from "next-auth/react";
-import { withPremiumAccess } from '@/src/components/withPremiumAccess';
+import { withPremiumAccess } from '@/components/withPremiumAccess';
+import { BottomNavigation } from '../../components/BottomNavigation';
 
 interface Message {
   id: number;

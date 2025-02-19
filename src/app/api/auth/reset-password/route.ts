@@ -1,16 +1,26 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { createTransporter } from '@/lib/email'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json()
 
+    if (!token || !password) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Token e senha são obrigatórios' }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     const user = await prisma.user.findFirst({
       where: {
-        resetToken: token,
-        resetTokenExpiry: {
+        passwordResetToken: token,
+        passwordResetExpires: {
           gt: new Date()
         }
       }
@@ -32,33 +42,34 @@ export async function POST(request: Request) {
       where: { id: user.id },
       data: {
         password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null
+        passwordResetToken: null,
+        passwordResetExpires: null
       }
     })
 
     // Enviar email de confirmação
-    const transporter = createTransporter()
-    
-    await transporter.sendMail({
-      from: {
-        name: 'Wallet',
-        address: 'oi@k17.com.br'
-      },
+    await sendEmail({
       to: user.email,
       subject: 'Senha alterada com sucesso',
       html: `
-        <h1>Sua senha foi alterada</h1>
-        <p>A senha da sua conta foi alterada com sucesso.</p>
-        <p>Se você não fez esta alteração, entre em contato conosco imediatamente.</p>
+        <h1>Senha Alterada</h1>
+        <p>Sua senha foi alterada com sucesso.</p>
+        <p>Se você não realizou esta alteração, entre em contato conosco imediatamente.</p>
       `
     })
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error resetting password:', error)
     return new NextResponse(
-      JSON.stringify({ error: 'Erro ao processar a solicitação' }),
+      JSON.stringify({ success: true }),
+      { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
+
+  } catch (error) {
+    console.error('Error:', error)
+    return new NextResponse(
+      JSON.stringify({ error: 'Erro ao alterar senha' }),
       { 
         status: 500,
         headers: { 'Content-Type': 'application/json' }

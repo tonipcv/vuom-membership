@@ -1,6 +1,5 @@
-
-import supabaseClient from '@/src/lib/superbaseClient';
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
     try {
@@ -29,32 +28,11 @@ export async function POST(req: Request) {
 
         const expirationDate = expires_at ? new Date(expires_at) : null;
 
-        // Obtém o Supabase Client
-        const supabase = supabaseClient;
-
-        // Atualizando o perfil no Supabase
-        console.log("Atualizando perfil no Supabase...");
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                is_premium: last_status === 'approved',
-                expiration_date: expirationDate,
-                created_at: new Date(created_at),
-                phone_number,
-                phone_local_code,
-                name,
-                doc,
-                email
-            })
-            .eq('id', id);
-
-        if (error) {
-            console.error('Erro ao atualizar perfil no Supabase:', error);
-            return NextResponse.json(
-                { error: 'Erro ao atualizar o status premium' },
-                { status: 500 }
-            );
-        }
+        // Atualizar lógica para usar Prisma em vez de Supabase
+        await prisma.user.update({
+            where: { email: email },
+            data: { isPremium: true }
+        });
 
         console.log("Acesso premium atualizado com sucesso!");
         return NextResponse.json(
@@ -62,10 +40,7 @@ export async function POST(req: Request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Erro ao processar webhook:', error);
-        return NextResponse.json(
-            { error: 'Erro interno do servidor' },
-            { status: 500 }
-        );
+        console.error('Webhook error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

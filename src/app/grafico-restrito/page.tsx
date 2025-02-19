@@ -7,6 +7,7 @@ import { OptimizedImage } from '../components/OptimizedImage';
 import { Navigation } from '../components/Navigation';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
+import { BottomNavigation } from '../../components/BottomNavigation';
 
 declare global {
   interface Window {

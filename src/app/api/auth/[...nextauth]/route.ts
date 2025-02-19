@@ -39,6 +39,7 @@ const handler = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
+          isPremium: user.isPremium || false
         }
       }
     })
@@ -46,6 +47,20 @@ const handler = NextAuth({
   pages: {
     signIn: '/login',
     error: '/auth/error',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.isPremium = user.isPremium
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.isPremium = token.isPremium as boolean
+      }
+      return session
+    }
   },
   session: {
     strategy: "jwt",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import supabaseClient from '@/src/lib/superbaseClient';
+import { signOut } from "next-auth/react";
 
 interface PremiumModalProps {
   onClose?: () => void;
@@ -10,8 +10,8 @@ interface PremiumModalProps {
 export default function PremiumModal({ onClose }: PremiumModalProps) {
   const router = useRouter();
 
-  const _handleSignOut = async () => {
-    await supabaseClient.auth.signOut();
+  const handleSignOut = async () => {
+    await signOut();
     router.push('/login');
   };
 

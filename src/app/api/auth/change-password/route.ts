@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { createTransporter } from '@/lib/email'
+import { sendEmail } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
@@ -34,10 +34,7 @@ export async function POST(request: Request) {
       data: { password: hashedPassword }
     })
 
-    const transporter = createTransporter()
-    
-    await transporter.sendMail({
-      from: 'oi@k17.com.br',
+    await sendEmail({
       to: session.user.email,
       subject: 'Senha alterada com sucesso',
       html: `

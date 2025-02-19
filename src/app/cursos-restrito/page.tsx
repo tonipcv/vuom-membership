@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import BottomNavigation from '../../components/BottomNavigation';
+import { BottomNavigation } from '../../components/BottomNavigation';
 import { useState } from 'react';
 
 export default function RestrictedCourses() {

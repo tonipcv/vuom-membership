@@ -8,6 +8,7 @@ import { DocumentArrowDownIcon, BookOpenIcon } from '@heroicons/react/24/outline
 import { OptimizedImage } from '../components/OptimizedImage'
 import { Navigation } from '../components/Navigation'
 import { PandaPlayer } from '../components/PandaPlayer'
+import { BottomNavigation } from '../../components/BottomNavigation'
 
 interface Episode {
   id: number

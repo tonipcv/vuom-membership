@@ -3,29 +3,40 @@ import { PrismaClient as PostgresPrisma } from '@prisma/client'
 
 async function migrateData() {
   const sqlitePrisma = new SQLitePrisma({
-    datasource: {
-      url: 'file:./dev.db'
+    datasources: {
+      db: {
+        url: 'file:./dev.db'
+      }
     }
   })
 
   const postgresPrisma = new PostgresPrisma({
-    datasource: {
-      url: process.env.DATABASE_URL
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
     }
   })
 
   try {
     // Migrar usuários
-    const users = await sqlitePrisma.user.findMany()
+    const users = await sqlitePrisma.user.findMany({
+      include: {
+        accounts: true,
+        sessions: true
+      }
+    })
+
     for (const user of users) {
+      const { accounts, sessions, ...userData } = user
       await postgresPrisma.user.create({
         data: {
-          ...user,
+          ...userData,
           accounts: {
-            create: user.accounts
+            create: accounts
           },
           sessions: {
-            create: user.sessions
+            create: sessions
           }
         }
       })
