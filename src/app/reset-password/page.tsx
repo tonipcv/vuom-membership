@@ -3,6 +3,8 @@
 import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import XLogo from '@/components/XLogo';
+import AuthLayout from '@/components/AuthLayout';
 
 // Modifique a função validatePassword para retornar um objeto com todos os status
 const validatePassword = (password: string) => {
@@ -89,94 +91,90 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="container mx-auto px-4 p-20 mb-4 mt-40">
-      <div className="flex justify-center mb-8">
-        <Image
-          src="/ft-icone.png"
-          alt="Logo da Empresa"
-          width={100}
-          height={50}
-        />
+    <AuthLayout>
+      <div className="w-full max-w-sm space-y-8">
+        <h2 className="text-center text-2xl font-extrabold text-white">
+          Redefinir senha
+        </h2>
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+          <div className="mb-4">
+            <label htmlFor="password" className="block mb-2 text-sm font-bold text-white-700">
+              Nova Senha
+            </label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Digite sua nova senha" 
+              required 
+              className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+              value={password}
+              onChange={handlePasswordChange}
+              minLength={8}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="confirmPassword" className="block mb-2 text-sm font-bold text-white-700">
+              Confirmar Nova Senha
+            </label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              name="confirmPassword" 
+              placeholder="Confirme sua nova senha" 
+              required 
+              className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={8}
+            />
+          </div>
+
+          <div className="mb-4 text-sm bg-gray-800 p-3 rounded-lg">
+            <p className="text-gray-400">A senha deve conter:</p>
+            <ul className="mt-1">
+              <li className={`flex items-center ${validations.minLength ? 'text-green-500' : 'text-gray-400'}`}>
+                {validations.minLength ? '✓' : '○'} Mínimo de 8 caracteres
+              </li>
+              <li className={`flex items-center ${validations.hasUpperCase ? 'text-green-500' : 'text-gray-400'}`}>
+                {validations.hasUpperCase ? '✓' : '○'} Pelo menos uma letra maiúscula
+              </li>
+              <li className={`flex items-center ${validations.hasLowerCase ? 'text-green-500' : 'text-gray-400'}`}>
+                {validations.hasLowerCase ? '✓' : '○'} Pelo menos uma letra minúscula
+              </li>
+              <li className={`flex items-center ${validations.hasNumber ? 'text-green-500' : 'text-gray-400'}`}>
+                {validations.hasNumber ? '✓' : '○'} Pelo menos um número
+              </li>
+              <li className={`flex items-center ${validations.hasSpecialChar ? 'text-green-500' : 'text-gray-400'}`}>
+                {validations.hasSpecialChar ? '✓' : '○'} Pelo menos um caractere especial (!@#$%^&*)
+              </li>
+            </ul>
+          </div>
+
+          {error && (
+            <div className="mb-4 text-center text-red-500">
+              {error}
+            </div>
+          )}
+
+          {message && (
+            <div className="mb-4 text-center text-green-500">
+              {message}
+            </div>
+          )}
+
+          <div className="mb-6 text-center">
+            <button 
+              type="submit" 
+              className="w-full px-4 py-2 font-bold text-black bg-green-300 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Atualizando...' : 'Atualizar Senha'}
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-2 text-sm font-bold text-white-700">
-            Nova Senha
-          </label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder="Digite sua nova senha" 
-            required 
-            className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-            value={password}
-            onChange={handlePasswordChange}
-            minLength={8}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="confirmPassword" className="block mb-2 text-sm font-bold text-white-700">
-            Confirmar Nova Senha
-          </label>
-          <input 
-            type="password" 
-            id="confirmPassword" 
-            name="confirmPassword" 
-            placeholder="Confirme sua nova senha" 
-            required 
-            className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            minLength={8}
-          />
-        </div>
-
-        <div className="mb-4 text-sm bg-gray-800 p-3 rounded-lg">
-          <p className="text-gray-400">A senha deve conter:</p>
-          <ul className="mt-1">
-            <li className={`flex items-center ${validations.minLength ? 'text-green-500' : 'text-gray-400'}`}>
-              {validations.minLength ? '✓' : '○'} Mínimo de 8 caracteres
-            </li>
-            <li className={`flex items-center ${validations.hasUpperCase ? 'text-green-500' : 'text-gray-400'}`}>
-              {validations.hasUpperCase ? '✓' : '○'} Pelo menos uma letra maiúscula
-            </li>
-            <li className={`flex items-center ${validations.hasLowerCase ? 'text-green-500' : 'text-gray-400'}`}>
-              {validations.hasLowerCase ? '✓' : '○'} Pelo menos uma letra minúscula
-            </li>
-            <li className={`flex items-center ${validations.hasNumber ? 'text-green-500' : 'text-gray-400'}`}>
-              {validations.hasNumber ? '✓' : '○'} Pelo menos um número
-            </li>
-            <li className={`flex items-center ${validations.hasSpecialChar ? 'text-green-500' : 'text-gray-400'}`}>
-              {validations.hasSpecialChar ? '✓' : '○'} Pelo menos um caractere especial (!@#$%^&*)
-            </li>
-          </ul>
-        </div>
-
-        {error && (
-          <div className="mb-4 text-center text-red-500">
-            {error}
-          </div>
-        )}
-
-        {message && (
-          <div className="mb-4 text-center text-green-500">
-            {message}
-          </div>
-        )}
-
-        <div className="mb-6 text-center">
-          <button 
-            type="submit" 
-            className="w-full px-4 py-2 font-bold text-black bg-green-300 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Atualizando...' : 'Atualizar Senha'}
-          </button>
-        </div>
-      </form>
-    </div>
+    </AuthLayout>
   );
 }

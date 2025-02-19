@@ -2,8 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import XLogo from '@/components/XLogo';
 
 function VerifyEmailContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -53,13 +53,7 @@ function VerifyEmailContent() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#111] px-4">
       <div className="max-w-md w-full space-y-8 bg-black p-8 rounded-lg border border-zinc-800">
         <div className="flex justify-center">
-          <Image
-            src="/ft-icone.png"
-            alt="Logo"
-            width={80}
-            height={80}
-            className="mb-4"
-          />
+          <XLogo />
         </div>
 
         <div className="text-center">

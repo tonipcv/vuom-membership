@@ -7,6 +7,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import { signIn } from "next-auth/react";
+import AuthLayout from '@/components/AuthLayout';
 
 // Hook personalizado para máscara de telefone
 const usePhoneMask = () => {
@@ -96,19 +97,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <AuthLayout>
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Image
-            src="/ft-icone.png"
-            alt="Logo da Empresa"
-            width={80}
-            height={40}
-            className="w-16 h-auto"
-          />
-        </div>
-
         {/* Mensagem de erro */}
         {error && (
           <div className="mb-6 text-red-500 text-center text-sm">{error}</div>
@@ -214,6 +204,6 @@ export default function Register() {
           </Link>
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

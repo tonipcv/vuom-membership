@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from "next-auth/react"
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
-
+import XLogo from '@/components/XLogo';
+import AuthLayout from '@/components/AuthLayout';
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,19 +47,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <AuthLayout>
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Image
-            src="/ft-icone.png"
-            alt="Logo da Empresa"
-            width={80}
-            height={40}
-            className="w-16 h-auto"
-          />
-        </div>
-        
         {/* Mensagem de erro */}
         {error && (
           <div className="mb-6 text-red-500 text-center text-sm">{error}</div>
@@ -153,6 +143,6 @@ export default function Login() {
           Continuar com Google
         </button>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
