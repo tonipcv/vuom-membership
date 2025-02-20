@@ -127,7 +127,7 @@ export default function Register() {
         </div>
 
         {/* Formulário */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div>
             <input 
               type="text" 
@@ -135,7 +135,8 @@ export default function Register() {
               name="name" 
               placeholder="Nome completo"
               required 
-              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+              autoComplete="off"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
             />
           </div>
 
@@ -146,7 +147,7 @@ export default function Register() {
               name="email" 
               placeholder="E-mail"
               required 
-              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
             />
           </div>
 
@@ -158,7 +159,7 @@ export default function Register() {
               placeholder="Telefone"
               required 
               onChange={handlePhoneChange}
-              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
             />
           </div>
 
@@ -169,7 +170,7 @@ export default function Register() {
               name="password" 
               placeholder="Senha"
               required 
-              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
             />
           </div>
 
@@ -180,13 +181,13 @@ export default function Register() {
               name="confirmPassword" 
               placeholder="Confirmar senha"
               required 
-              className="w-full px-3 py-2 text-sm bg-gray-900/50 border border-gray-800 rounded-lg focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 placeholder-gray-500"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full px-4 py-2 text-sm font-medium text-black bg-green-400 rounded-lg hover:bg-green-500 transition-colors duration-200"
+            className="w-full px-4 py-2 text-sm font-medium text-black bg-white rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-sm"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
@@ -197,7 +198,7 @@ export default function Register() {
         <div className="mt-6 text-center">
           <Link 
             href="/login" 
-            className="text-sm text-green-400 hover:text-green-300 transition-colors duration-200 inline-flex items-center gap-1"
+            className="text-sm text-zinc-400 hover:text-white transition-colors duration-200 inline-flex items-center gap-1"
           >
             <ArrowLeftIcon className="w-3 h-3" />
             Voltar para login

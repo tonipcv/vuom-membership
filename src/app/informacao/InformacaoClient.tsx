@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { OptimizedImage } from '../components/OptimizedImage';
 import { PandaPlayer } from '../components/PandaPlayer';
 import { Navigation } from '../components/Navigation';
+import { PricingSection } from '@/components/pricing/PricingSection';
 
 export default function InformacaoClient() {
   return (
@@ -23,7 +24,7 @@ export default function InformacaoClient() {
             <PandaPlayer videoId="6a82bc71-be86-4d83-be38-99cf230e7298" />
           </div>
 
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-6 text-center">
+          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-6 text-center mb-16">
             <div className="flex items-center justify-center mb-3">
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-green-400 border-t-transparent"></div>
             </div>
@@ -31,6 +32,9 @@ export default function InformacaoClient() {
               Assista o vídeo para ter acesso ao grupo exclusivo
             </p>
           </div>
+
+          {/* Seção de Planos */}
+          <PricingSection />
         </div>
       </main>
 

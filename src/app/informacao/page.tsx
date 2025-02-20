@@ -1,5 +1,5 @@
 import InformacaoClient from './InformacaoClient';
 
-export default function InformacaoPage() {
+export default function Informacao() {
   return <InformacaoClient />;
 } 

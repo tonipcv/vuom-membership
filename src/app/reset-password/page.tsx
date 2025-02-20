@@ -96,9 +96,10 @@ export default function ResetPassword() {
         <h2 className="text-center text-2xl font-extrabold text-white">
           Redefinir senha
         </h2>
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-          <div className="mb-4">
-            <label htmlFor="password" className="block mb-2 text-sm font-bold text-white-700">
+        
+        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+          <div>
+            <label htmlFor="password" className="block mb-2 text-sm font-medium text-zinc-400">
               Nova Senha
             </label>
             <input 
@@ -107,33 +108,17 @@ export default function ResetPassword() {
               name="password" 
               placeholder="Digite sua nova senha" 
               required 
-              className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+              autoComplete="new-password"
+              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
               value={password}
               onChange={handlePasswordChange}
               minLength={8}
             />
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="confirmPassword" className="block mb-2 text-sm font-bold text-white-700">
-              Confirmar Nova Senha
-            </label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              placeholder="Confirme sua nova senha" 
-              required 
-              className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              minLength={8}
-            />
-          </div>
-
-          <div className="mb-4 text-sm bg-gray-800 p-3 rounded-lg">
-            <p className="text-gray-400">A senha deve conter:</p>
-            <ul className="mt-1">
+          <div className="text-sm bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <p className="text-zinc-400">A senha deve conter:</p>
+            <ul className="mt-2 space-y-1">
               <li className={`flex items-center ${validations.minLength ? 'text-green-500' : 'text-gray-400'}`}>
                 {validations.minLength ? '✓' : '○'} Mínimo de 8 caracteres
               </li>
@@ -164,15 +149,13 @@ export default function ResetPassword() {
             </div>
           )}
 
-          <div className="mb-6 text-center">
-            <button 
-              type="submit" 
-              className="w-full px-4 py-2 font-bold text-black bg-green-300 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Atualizando...' : 'Atualizar Senha'}
-            </button>
-          </div>
+          <button 
+            type="submit" 
+            className="w-full px-4 py-2 text-sm font-medium text-black bg-white rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-sm"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Atualizando...' : 'Atualizar Senha'}
+          </button>
         </form>
       </div>
     </AuthLayout>
