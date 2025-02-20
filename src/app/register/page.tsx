@@ -1,12 +1,9 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { FcGoogle } from 'react-icons/fc';
-import { signIn } from "next-auth/react";
 import AuthLayout from '@/components/AuthLayout';
 
 // Hook personalizado para máscara de telefone
@@ -92,10 +89,6 @@ export default function Register() {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    signIn('google', { callbackUrl: '/confirm-email' });
-  };
-
   return (
     <AuthLayout>
       <div className="w-full max-w-sm">
@@ -103,28 +96,6 @@ export default function Register() {
         {error && (
           <div className="mb-6 text-red-500 text-center text-sm">{error}</div>
         )}
-
-        {/* Botão do Google */}
-        <div className="mb-6">
-          <button
-            onClick={handleGoogleSignUp}
-            type="button"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-colors duration-200 border border-gray-200"
-          >
-            <FcGoogle className="w-5 h-5" />
-            <span className="text-sm font-medium">Cadastrar com o Google</span>
-          </button>
-        </div>
-
-        {/* Separador */}
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-800"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[#111] px-2 text-gray-500">ou</span>
-          </div>
-        </div>
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">

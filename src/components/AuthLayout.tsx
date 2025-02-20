@@ -13,6 +13,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
         {children}
       </div>
+      
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 py-4 text-center">
+        <p className="text-xs text-zinc-500">Made by KRX</p>
+      </div>
     </div>
   );
 } 

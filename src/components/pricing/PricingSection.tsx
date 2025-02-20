@@ -57,7 +57,6 @@ export function PricingSection() {
           <CardHeader className="pb-6 relative">
             <CardTitle className="text-lg font-bold text-white">Plano VIP + FIP</CardTitle>
             <div className="mt-3">
-              <div className="text-zinc-400 text-sm mb-1">Aproveite o parcelamento especial</div>
               <div className="text-4xl font-bold bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent">
                 12x R$ 97
               </div>
@@ -66,7 +65,7 @@ export function PricingSection() {
               </div>
             </div>
             <div className="text-green-500 text-xs font-medium mt-2">
-              Para Inscritos na Lista VIP
+              Novas 93 vagas somente no dia 18/03 pela última vez, pelo alto custo de desenvolvimento é impossível fazer novamente!
             </div>
           </CardHeader>
           <CardContent className="relative">
