@@ -9,6 +9,7 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import XLogo from '@/components/XLogo';
 import AuthLayout from '@/components/AuthLayout';
 import { FcGoogle } from 'react-icons/fc';
+import { GoogleIcon } from '@/components/GoogleIcon';
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,7 +67,7 @@ export default function Login() {
               placeholder="E-mail"
               required
               autoComplete="off"
-              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
+              className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-xl focus:ring-1 focus:ring-pink-400 focus:border-pink-400 transition-colors duration-200 placeholder-gray-400 text-gray-900"
             />
           </div>
           
@@ -78,13 +79,13 @@ export default function Login() {
               placeholder="Senha"
               required
               autoComplete="new-password"
-              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
+              className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-xl focus:ring-1 focus:ring-pink-400 focus:border-pink-400 transition-colors duration-200 placeholder-gray-400 text-gray-900"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full px-4 py-2 text-sm font-medium text-black bg-white rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-sm"
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-pink-500 rounded-xl hover:bg-pink-600 transition-all duration-200 shadow-sm"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Entrando...' : 'Entrar'}
@@ -96,14 +97,14 @@ export default function Login() {
           <div className="flex items-center gap-4">
             <Link 
               href="/forgot-password" 
-              className="text-sm text-zinc-400 hover:text-white transition-colors duration-200"
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
             >
               Esqueceu a senha?
             </Link>
-            <span className="text-zinc-600">•</span>
+            <span className="text-gray-300">•</span>
             <Link 
               href="/register" 
-              className="text-sm text-white hover:text-zinc-300 transition-colors duration-200 flex items-center gap-1"
+              className="text-sm text-gray-700 hover:text-gray-900 transition-colors duration-200 flex items-center gap-1"
             >
               Criar conta
               <ArrowRightIcon className="w-3 h-3" />
@@ -114,10 +115,10 @@ export default function Login() {
         {/* Separador */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-zinc-800"></div>
+            <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-2 text-zinc-500 bg-black">ou</span>
+            <span className="px-2 text-gray-400 bg-white">ou</span>
           </div>
         </div>
 
@@ -125,9 +126,9 @@ export default function Login() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-zinc-300 bg-transparent border border-zinc-800 rounded-lg hover:bg-zinc-900 transition-colors duration-200"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
         >
-          <FcGoogle className="h-4 w-4" />
+          <GoogleIcon className="h-5 w-5 text-gray-900" />
           Continuar com Google
         </button>
       </div>

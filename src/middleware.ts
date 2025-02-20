@@ -1,10 +1,11 @@
 // middleware.ts
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 
 export default withAuth(
-  async function middleware(req) {
-    const token = req.nextauth.token
+  async function middleware(req: NextRequest) {
+    const token = req.nextauth.token as { isPremium?: boolean } | null
     
     // Rotas premium e suas versões restritas
     const premiumRoutes = {
@@ -25,7 +26,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token
+      authorized: ({ token }: { token: any | null }) => !!token
     },
   }
 )
