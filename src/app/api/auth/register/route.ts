@@ -3,27 +3,28 @@ import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import crypto from 'crypto';
+import { type Region } from '@/lib/prices';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name, phone } = await req.json();
+    const { name, email, password, region } = await req.json();
 
     // Validar campos obrigatórios
-    if (!email || !password || !name) {
+    if (!name || !email || !password || !region) {
       return NextResponse.json(
-        { message: 'Campos obrigatórios faltando' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Verificar se o usuário já existe
+    // Verificar se o email já está em uso
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { message: 'Este e-mail já está registrado' },
+        { error: 'Email already in use' },
         { status: 400 }
       );
     }
@@ -38,10 +39,10 @@ export async function POST(req: Request) {
       // Criar usuário
       const user = await prisma.user.create({
         data: {
+          name,
           email,
           password: hashedPassword,
-          name,
-          phone: phone || '',
+          region: region as Region,
           verificationToken,
           emailVerified: null
         },
@@ -72,24 +73,25 @@ export async function POST(req: Request) {
         // Continua com o registro mesmo se o email falhar
       }
 
-      return NextResponse.json(
-        { 
-          message: 'Usuário criado com sucesso. Por favor, verifique seu email.',
-          userId: user.id 
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          region: user.region,
         },
-        { status: 201 }
-      );
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
       return NextResponse.json(
-        { message: 'Erro ao criar usuário no banco de dados' },
+        { error: 'Error creating user' },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { message: 'Erro ao processar a requisição' },
+      { error: 'Error creating user' },
       { status: 500 }
     );
   } finally {

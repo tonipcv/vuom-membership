@@ -1,16 +1,25 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from "next-auth/react";
 import { ArrowRight } from 'lucide-react';
+import { REGION_NAMES, type Region } from '@/lib/prices';
+import { detectUserRegion } from '@/lib/geo';
 
 export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [region, setRegion] = useState<Region>('OTHER');
   const router = useRouter();
+
+  // Detectar região do usuário quando o componente montar
+  useEffect(() => {
+    const detectedRegion = detectUserRegion();
+    setRegion(detectedRegion);
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,6 +48,7 @@ export default function Register() {
           name,
           email,
           password,
+          region,
         }),
       });
 
@@ -132,6 +142,25 @@ export default function Register() {
                 className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
                 placeholder="Enter your email"
               />
+            </div>
+
+            <div>
+              <label htmlFor="region" className="block text-sm font-medium text-[#35426A] mb-2">
+                Region
+              </label>
+              <select
+                id="region"
+                name="region"
+                value={region}
+                onChange={(e) => setRegion(e.target.value as Region)}
+                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+              >
+                {Object.entries(REGION_NAMES).map(([key, name]) => (
+                  <option key={key} value={key}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div>

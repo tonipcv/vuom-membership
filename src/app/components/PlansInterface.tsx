@@ -3,31 +3,64 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { PricingCard } from './PricingCard';
 import { getStripe } from '@/lib/stripe';
-
-interface Plan {
-  name: string;
-  price: string;
-  pricePerDay: string;
-  period: string;
-  popular: boolean;
-  features: string[];
-}
+import { PricingCard } from './PricingCard';
+import { PRICE_IDS, PRICE_VALUES, REGION_CURRENCIES, CURRENCY_SYMBOLS } from '@/lib/prices';
 
 interface PlansInterfaceProps {
-  plans: Plan[];
+  plans?: Array<{
+    name: string;
+    price: string;
+    pricePerDay: string;
+    period: string;
+    popular: boolean;
+    features: string[];
+  }>;
+  userRegion?: 'US' | 'UK' | 'EU' | 'BR' | 'OTHER';
+  userId: string;
 }
 
-const PRICE_IDS = {
-  "Plano Iniciante": "price_1RHTEKCodiLHkuBGpp8UD9vd",
-  "Plano Pro": "price_1RHTG7CodiLHkuBG6tUiqlUU",
-};
+function getPlansForRegion(region: 'US' | 'UK' | 'EU' | 'BR' | 'OTHER') {
+  const currency = REGION_CURRENCIES[region];
+  const symbol = CURRENCY_SYMBOLS[currency];
 
-export default function PlansInterface({ plans }: PlansInterfaceProps) {
+  return [
+    {
+      name: "Plano Iniciante",
+      price: `${symbol}${PRICE_VALUES.INICIANTE[currency]}`,
+      pricePerDay: `${symbol}${(PRICE_VALUES.INICIANTE[currency] / 30).toFixed(2)} por dia`,
+      period: "mês",
+      popular: false,
+      features: [
+        "Acesso a todos os exercícios",
+        "Acesso ao grupo exclusivo",
+        "Suporte via chat",
+        "Garantia de 7 dias",
+      ],
+    },
+    {
+      name: "Plano Pro",
+      price: `${symbol}${PRICE_VALUES.PRO[currency]}`,
+      pricePerDay: `${symbol}${(PRICE_VALUES.PRO[currency] / 30).toFixed(2)} por dia`,
+      period: "mês",
+      popular: true,
+      features: [
+        "Tudo do plano Iniciante",
+        "Acesso a conteúdos exclusivos",
+        "Suporte prioritário",
+        "Mentoria individual",
+        "Garantia estendida de 15 dias",
+      ],
+    },
+  ];
+}
+
+export default function PlansInterface({ userRegion = 'OTHER', userId }: PlansInterfaceProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const plans = getPlansForRegion(userRegion);
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: '/login' });
@@ -38,19 +71,23 @@ export default function PlansInterface({ plans }: PlansInterfaceProps) {
       setIsLoading(true);
       setError(null);
 
-      const priceId = PRICE_IDS[planName as keyof typeof PRICE_IDS];
+      const currency = REGION_CURRENCIES[userRegion];
+      const priceId = planName === "Plano Iniciante" 
+        ? PRICE_IDS.INICIANTE[currency]
+        : PRICE_IDS.PRO[currency];
       
       if (!priceId) {
         throw new Error('Plano não encontrado');
       }
 
-      const response = await fetch('/api/create-checkout-session-brl', {
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           priceId,
+          userId,
           successUrl: `${window.location.origin}/success`,
           cancelUrl: `${window.location.origin}/planos`,
         }),

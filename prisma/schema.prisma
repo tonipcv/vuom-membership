@@ -20,6 +20,7 @@
      isPremium       Boolean   @default(false)
      isSuperPremium  Boolean   @default(false)
      language        String?   // user's preferred language
+     region          String    @default("OTHER") // US, UK, EU, BR, OTHER
      stripeCustomerId String?  @unique // Stripe Customer ID
      createdAt       DateTime  @default(now())
      updatedAt       DateTime  @updatedAt

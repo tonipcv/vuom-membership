@@ -1,6 +1,8 @@
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { PRICE_IDS } from '@/lib/prices';
 import Stripe from 'stripe';
 
 const relevantEvents = new Set([
@@ -46,7 +48,6 @@ export async function POST(req: Request) {
           
           // Buscar o preço para determinar o tipo de plano
           const priceId = subscription.items.data[0].price.id;
-          const price = await stripe.prices.retrieve(priceId);
           
           // Buscar o usuário pelo Stripe Customer ID
           const user = await prisma.user.findFirst({
@@ -59,55 +60,51 @@ export async function POST(req: Request) {
             throw new Error('User not found');
           }
 
-          // Atualizar status premium baseado no produto
-          if (price.product === process.env.STRIPE_INICIANTE_PRODUCT_ID) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                isPremium: true,
-                isSuperPremium: false,
-              },
-            });
-          } else if (price.product === process.env.STRIPE_PRO_PRODUCT_ID) {
-            await prisma.user.update({
-              where: { id: user.id },
-              data: {
-                isPremium: true,
-                isSuperPremium: true,
-              },
-            });
-          }
+          // Determinar o tipo de plano baseado no priceId
+          const isIniciante = Object.values(PRICE_IDS.INICIANTE).some(id => id === priceId);
+          const isPro = Object.values(PRICE_IDS.PRO).some(id => id === priceId);
+
+          // Atualizar status premium baseado no plano
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              isPremium: true,
+              isSuperPremium: isPro,
+            },
+          });
           break;
 
         case 'customer.subscription.deleted':
-          const canceledSubscription = event.data.object as Stripe.Subscription;
+          const deletedSubscription = event.data.object as Stripe.Subscription;
           
-          // Buscar o usuário e remover status premium
-          const canceledUser = await prisma.user.findFirst({
+          // Buscar o usuário pelo Stripe Customer ID
+          const userToUpdate = await prisma.user.findFirst({
             where: {
-              stripeCustomerId: canceledSubscription.customer as string,
+              stripeCustomerId: deletedSubscription.customer as string,
             },
           });
 
-          if (canceledUser) {
-            await prisma.user.update({
-              where: { id: canceledUser.id },
-              data: {
-                isPremium: false,
-                isSuperPremium: false,
-              },
-            });
+          if (!userToUpdate) {
+            throw new Error('User not found');
           }
-          break;
 
-        default:
-          throw new Error('Unhandled relevant event!');
+          // Remover status premium
+          await prisma.user.update({
+            where: { id: userToUpdate.id },
+            data: {
+              isPremium: false,
+              isSuperPremium: false,
+            },
+          });
+          break;
       }
+
+      return new NextResponse(JSON.stringify({ received: true }));
     } catch (error) {
       console.error('Webhook error:', error);
       return new NextResponse('Webhook handler failed', { status: 500 });
     }
   }
 
-  return NextResponse.json({ received: true });
+  return new NextResponse(JSON.stringify({ received: true }));
 }
