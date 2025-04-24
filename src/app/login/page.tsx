@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from "next-auth/react"
 import { ArrowRight } from 'lucide-react';
-import { GoogleIcon } from '@/components/GoogleIcon';
 import { Button } from "@/components/ui/button";
 
 export default function Login() {
@@ -42,13 +41,6 @@ export default function Login() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    signIn('google', { 
-      redirect: true,
-      callbackUrl: '/planos'
-    });
   };
 
   return (
@@ -134,26 +126,6 @@ export default function Login() {
               Forgot your password?
             </Link>
           </div>
-
-          {/* Separador */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-4 text-sm text-[#7286B2] bg-white">or continue with</span>
-            </div>
-          </div>
-
-          {/* Botão do Google */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 text-sm text-[#35426A] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200"
-          >
-            <GoogleIcon className="h-4 w-4" />
-            Sign in with Google
-          </button>
 
           {/* Link para criar conta */}
           <p className="mt-8 text-center text-sm text-[#7286B2]">

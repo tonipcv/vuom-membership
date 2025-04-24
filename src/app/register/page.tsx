@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signIn } from "next-auth/react";
 import { ArrowRight } from 'lucide-react';
 
 export default function Register() {
@@ -47,8 +48,20 @@ export default function Register() {
         throw new Error(data.error || 'Error during registration');
       }
 
-      // Após o registro bem-sucedido, redireciona para a página de planos
+      // Fazer login automaticamente após o registro
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        throw new Error('Error during automatic login');
+      }
+
+      // Após o login bem-sucedido, redireciona para a página de planos
       router.push('/planos');
+      router.refresh();
     } catch (err) {
       console.error('Registration error:', err);
       setError(err instanceof Error ? err.message : 'Error during registration');
