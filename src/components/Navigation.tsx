@@ -22,7 +22,7 @@ export default function Navigation() {
               </Link>
               
               <Link 
-                href="/chat" 
+                href="/planos" 
                 className="flex flex-col items-center p-2 text-gray-400 hover:text-green-300 transition-colors"
               >
                 <MessageSquare className="h-6 w-6" />

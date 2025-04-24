@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuthLayout from '@/components/AuthLayout';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { satoshi, euclidCircular } from '../fonts/fonts';
 
 export default function ForgotPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,62 +43,69 @@ export default function ForgotPassword() {
   };
 
   return (
-    <AuthLayout>
-      <div className="w-full max-w-sm space-y-8">
-        <div>
-          <h2 className="text-center text-2xl font-extrabold text-white">
-            Recuperar senha
-          </h2>
-          <p className="mt-2 text-center text-sm text-zinc-400">
-            Digite seu e-mail para receber as instruções
-          </p>
-        </div>
-
-        {error && (
-          <div className="text-center text-sm text-red-500 bg-red-500/10 py-2 px-3 rounded-lg">
-            {error}
-          </div>
-        )}
-        
-        {success && (
-          <div className="text-center text-sm text-green-500 bg-green-500/10 py-2 px-3 rounded-lg">
-            {success}
-          </div>
-        )}
-
-        <form className="space-y-6" onSubmit={handleSubmit} autoComplete="off">
-          <div>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              autoComplete="off"
-              className="w-full px-3 py-2 text-sm bg-black border border-zinc-700 rounded-xl focus:ring-1 focus:ring-white focus:border-white transition-colors duration-200 placeholder-zinc-500"
-              placeholder="Digite seu e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+    <div className={`min-h-screen bg-gradient-to-br from-white to-gray-50 text-gray-900 ${satoshi.variable} ${euclidCircular.variable}`}>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-[380px] bg-white/70 backdrop-blur-lg rounded-xl border border-[#9d96fc]/10 p-6">
+          {/* Título */}
+          <div className="text-center mb-6">
+            <h1 className="text-[22px] leading-tight tracking-[-0.03em] font-bold mb-1.5 font-satoshi bg-gradient-to-r from-[#9d96fc] to-[#7b74fa] text-transparent bg-clip-text">
+              Recuperar senha
+            </h1>
+            <p className="text-[13px] text-gray-500 font-satoshi tracking-[-0.03em]">
+              Digite seu e-mail para receber as instruções
+            </p>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full px-4 py-2 text-sm font-medium text-black bg-white rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-sm"
-          >
-            {isSubmitting ? 'Enviando...' : 'Enviar instruções'}
-          </button>
-        </form>
+          {error && (
+            <div className="mb-4 text-red-500 text-center text-[13px] font-satoshi tracking-[-0.03em]">
+              {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="mb-4 text-emerald-500 text-center text-[13px] font-satoshi tracking-[-0.03em]">
+              {success}
+            </div>
+          )}
 
-        <div className="text-center">
-          <Link 
-            href="/login" 
-            className="text-sm text-zinc-400 hover:text-white transition-colors duration-200"
-          >
-            Voltar para o login
-          </Link>
+          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
+            <div>
+              <label htmlFor="email" className="block text-[13px] font-medium text-gray-700 mb-1 font-satoshi tracking-[-0.03em]">
+                E-mail
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                autoComplete="off"
+                className="w-full px-3 py-2 text-[13px] bg-white border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#9d96fc]/20 focus:border-[#9d96fc] transition-all duration-200 placeholder-gray-400 text-gray-900 font-satoshi tracking-[-0.03em]"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-2 px-4 text-[13px] font-medium text-white bg-gradient-to-r from-[#9d96fc] to-[#7b74fa] rounded-lg hover:opacity-90 transition-all duration-200 font-satoshi tracking-[-0.03em] mt-1"
+            >
+              {isSubmitting ? 'Enviando...' : 'Enviar instruções'}
+            </button>
+          </form>
+
+          {/* Link para login */}
+          <div className="mt-6 text-center">
+            <Link 
+              href="/login" 
+              className="text-[13px] text-gray-500 hover:text-[#9d96fc] transition-colors duration-200 inline-flex items-center gap-1 font-satoshi tracking-[-0.03em]"
+            >
+              <ArrowLeftIcon className="w-3 h-3" />
+              Voltar para login
+            </Link>
+          </div>
         </div>
       </div>
-    </AuthLayout>
+    </div>
   );
 }

@@ -1,46 +1,113 @@
 import { NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import Stripe from 'stripe';
+
+const relevantEvents = new Set([
+  'customer.subscription.created',
+  'customer.subscription.updated',
+  'customer.subscription.deleted'
+]);
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export async function POST(req: Request) {
-    try {
-        console.log("Iniciando envio de notificação...");
+  const body = await req.text();
+  const signature = req.headers.get('stripe-signature');
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-        // Parse o corpo da requisição
-        const body = await req.json();
-        console.log("Body recebido:", body);
+  let event: Stripe.Event;
 
-        const {
-            last_status,
-            created_at,
-            expires_at,
-            subscriber
-        } = body;
-
-        console.log("Extraindo dados do assinante...");
-        const {
-            phone_number,
-            phone_local_code,
-            name,
-            doc,
-            email,
-            id
-        } = subscriber;
-
-        const expirationDate = expires_at ? new Date(expires_at) : null;
-
-        // Atualizar lógica para usar Prisma em vez de Supabase
-        await prisma.user.update({
-            where: { email: email },
-            data: { isPremium: true }
-        });
-
-        console.log("Acesso premium atualizado com sucesso!");
-        return NextResponse.json(
-            { message: 'Acesso premium atualizado com sucesso!' },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error('Webhook error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  try {
+    if (!signature || !webhookSecret) {
+      return new NextResponse('Missing signature or webhook secret', { status: 400 });
     }
+    
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
+  } catch (err: any) {
+    console.error('Webhook error:', err.message);
+    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  }
+
+  if (relevantEvents.has(event.type)) {
+    try {
+      switch (event.type) {
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+          const subscription = event.data.object as Stripe.Subscription;
+          
+          // Buscar o preço para determinar o tipo de plano
+          const priceId = subscription.items.data[0].price.id;
+          const price = await stripe.prices.retrieve(priceId);
+          
+          // Buscar o usuário pelo Stripe Customer ID
+          const user = await prisma.user.findFirst({
+            where: {
+              stripeCustomerId: subscription.customer as string,
+            },
+          });
+
+          if (!user) {
+            throw new Error('User not found');
+          }
+
+          // Atualizar status premium baseado no produto
+          if (price.product === process.env.STRIPE_INICIANTE_PRODUCT_ID) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                isPremium: true,
+                isSuperPremium: false,
+              },
+            });
+          } else if (price.product === process.env.STRIPE_PRO_PRODUCT_ID) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                isPremium: true,
+                isSuperPremium: true,
+              },
+            });
+          }
+          break;
+
+        case 'customer.subscription.deleted':
+          const canceledSubscription = event.data.object as Stripe.Subscription;
+          
+          // Buscar o usuário e remover status premium
+          const canceledUser = await prisma.user.findFirst({
+            where: {
+              stripeCustomerId: canceledSubscription.customer as string,
+            },
+          });
+
+          if (canceledUser) {
+            await prisma.user.update({
+              where: { id: canceledUser.id },
+              data: {
+                isPremium: false,
+                isSuperPremium: false,
+              },
+            });
+          }
+          break;
+
+        default:
+          throw new Error('Unhandled relevant event!');
+      }
+    } catch (error) {
+      console.error('Webhook error:', error);
+      return new NextResponse('Webhook handler failed', { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ received: true });
 }

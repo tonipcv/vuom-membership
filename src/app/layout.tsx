@@ -5,6 +5,7 @@ import './globals.css';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import FacebookPixel from '../components/FacebookPixel';
 import { Providers } from './providers'
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 const montserrat = Montserrat({
@@ -27,6 +28,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#111111" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <Script src="https://js.stripe.com/v3/" strategy="beforeInteractive" />
       </head>
       <body className={inter.className}>
         <Providers>

@@ -18,10 +18,14 @@
      resetTokenExpiry DateTime?
      verificationToken String?   @unique
      isPremium       Boolean   @default(false)
+     isSuperPremium  Boolean   @default(false)
+     language        String?   // user's preferred language
+     stripeCustomerId String?  @unique // Stripe Customer ID
      createdAt       DateTime  @default(now())
      updatedAt       DateTime  @updatedAt
      accounts        Account[]
      sessions        Session[]
+     subscriptions   Subscription[]
      phone           String?
      passwordResetToken   String?   @map("password_reset_token")
      passwordResetExpires DateTime? @map("password_reset_expires")
@@ -59,4 +63,44 @@
      expires    DateTime
 
      @@unique([identifier, token])
+   }
+
+   model Plan {
+     id          String    @id @default(cuid())
+     name        String
+     description String
+     type        String    // 'premium' or 'super_premium'
+     features    String[]
+     prices      Price[]
+     createdAt   DateTime  @default(now())
+     updatedAt   DateTime  @updatedAt
+   }
+
+   model Price {
+     id          String    @id @default(cuid())
+     planId      String
+     plan        Plan      @relation(fields: [planId], references: [id])
+     amount      Int       // price in cents
+     currency    String    // e.g., 'usd', 'brl'
+     language    String    // e.g., 'en', 'pt'
+     interval    String    // 'month' or 'year'
+     stripeId    String    @unique // Stripe Price ID
+     createdAt   DateTime  @default(now())
+     updatedAt   DateTime  @updatedAt
+     subscriptions Subscription[]
+   }
+
+   model Subscription {
+     id              String    @id @default(cuid())
+     userId          String
+     user            User      @relation(fields: [userId], references: [id])
+     priceId         String
+     price           Price     @relation(fields: [priceId], references: [id])
+     status          String    // 'active', 'canceled', 'past_due', etc.
+     stripeId        String    @unique // Stripe Subscription ID
+     currentPeriodStart DateTime
+     currentPeriodEnd   DateTime
+     cancelAtPeriodEnd  Boolean  @default(false)
+     createdAt       DateTime  @default(now())
+     updatedAt       DateTime  @updatedAt
    }

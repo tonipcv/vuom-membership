@@ -1,45 +1,52 @@
 // middleware.ts
-import { withAuth } from "next-auth/middleware"
-import { NextResponse } from "next/server"
-import { NextRequest } from "next/server"
+import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
+import type { NextRequest } from 'next/server';
 
-export default withAuth(
-  async function middleware(req: NextRequest) {
-    const token = req.nextauth.token as { isPremium?: boolean } | null
-    
-    // Rotas premium e suas versões restritas
-    const premiumRoutes = {
-      '/chat': '/chat-restrito',
-      '/series': '/series-restrito',
-      '/grafico': '/grafico-restrito'
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request });
+  const { pathname } = request.nextUrl;
+
+  // Rotas públicas que não precisam de autenticação
+  const publicRoutes = ['/login', '/register', '/forgot-password'];
+  if (publicRoutes.includes(pathname)) {
+    // Se estiver logado, redireciona para área restrita
+    if (token) {
+      return NextResponse.redirect(new URL('/series-restrito', request.url));
     }
-
-    // Verifica acesso premium
-    if (premiumRoutes[req.nextUrl.pathname as keyof typeof premiumRoutes]) {
-      if (!token?.isPremium) {
-        const restrictedRoute = premiumRoutes[req.nextUrl.pathname as keyof typeof premiumRoutes]
-        return NextResponse.redirect(new URL(restrictedRoute, req.url))
-      }
-    }
-
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }: { token: any | null }) => !!token
-    },
+    return NextResponse.next();
   }
-)
+
+  // Se não estiver logado, redireciona para login
+  if (!token) {
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Verifica acesso à área restrita
+  if (pathname.startsWith('/series-restrito')) {
+    // Se não for premium, redireciona para página de planos
+    if (!token.isPremium) {
+      return NextResponse.redirect(new URL('/planos', request.url));
+    }
+  }
+
+  // Verifica acesso à página de planos
+  if (pathname === '/planos') {
+    // Se já for premium, redireciona para área restrita
+    if (token.isPremium) {
+      return NextResponse.redirect(new URL('/series-restrito', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
-    '/chat',
-    '/chat-restrito',
-    '/series',
-    '/series-restrito',
-    '/grafico',
-    '/grafico-restrito',
-    '/assinatura',
-    '/relatorio'
-  ]
-}
+    '/login',
+    '/register',
+    '/planos',
+    '/series-restrito/:path*',
+  ],
+};

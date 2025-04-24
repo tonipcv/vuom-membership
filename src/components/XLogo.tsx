@@ -1,9 +1,9 @@
 import Image from 'next/image';
 // ou import { TrendingUp, CandlestickChart } from 'lucide-react';
 
-const XLogo = () => {
+export default function XLogo() {
   return (
-    <div className="flex items-center justify-center">
+    <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
       <Image
         src="/katsu.png"
         alt="Katsu Logo"
@@ -14,6 +14,4 @@ const XLogo = () => {
       />
     </div>
   );
-};
-
-export default XLogo; 
+} 

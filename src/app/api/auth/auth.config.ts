@@ -1,10 +1,10 @@
-import { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { prisma } from '@/lib/prisma'
-import { compare } from 'bcryptjs'
+import { AuthOptions } from "next-auth"
+import { prisma } from "@/lib/prisma"
+import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { compare } from "bcryptjs"
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -13,12 +13,12 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Credenciais inválidas')
+          throw new Error("Credenciais inválidas")
         }
 
         const user = await prisma.user.findUnique({
@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (!user || !user.password) {
-          throw new Error('Usuário não encontrado')
+          throw new Error("Usuário não encontrado")
         }
 
         const isCorrectPassword = await compare(
@@ -37,26 +37,26 @@ export const authOptions: NextAuthOptions = {
         )
 
         if (!isCorrectPassword) {
-          throw new Error('Senha incorreta')
+          throw new Error("Senha incorreta")
         }
 
         return {
           id: user.id,
-          name: user.name || "",
           email: user.email,
+          name: user.name || "",
           image: user.image,
-          isPremium: user.isPremium || false
+          isPremium: user.isPremium
         }
       }
     })
   ],
-  session: {
-    strategy: 'jwt'
-  },
   pages: {
     signIn: '/login',
   },
   debug: process.env.NODE_ENV === 'development',
+  session: {
+    strategy: "jwt"
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
