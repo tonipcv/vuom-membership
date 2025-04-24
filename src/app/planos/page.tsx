@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 const defaultPlans = [
   {
     name: "Plano Iniciante",
-    price: "R$ 97",
-    pricePerDay: "R$ 3,23 por dia",
+    price: "R$ 19",
+    pricePerDay: "R$ 0,63 por dia",
     period: "mês",
     popular: false,
     features: [

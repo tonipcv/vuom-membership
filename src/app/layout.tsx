@@ -14,8 +14,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: 'Futuros Tech',
-  description: 'Futuros Tech - Plataforma de Sinais',
+  title: 'VUOM',
+  description: 'Beauty & Self Care',
 };
 
 export default function RootLayout({
