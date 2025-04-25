@@ -116,10 +116,10 @@ export default function Register() {
     <div className="min-h-screen bg-gradient-to-b from-[#D6D2D3] to-[#F8FFFF] font-normal tracking-[-0.03em]">
       {/* Header */}
       <header className="fixed w-full top-0 bg-[#D6D2D3]/80 backdrop-blur-lg z-50 border-b border-gray-100/20">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
             <div className="p-2">
-              <span className="text-[#1B2541] text-2xl font-light tracking-[-0.03em] uppercase">
+              <span className="text-[#1B2541] text-xl font-light tracking-[-0.03em] uppercase">
                 VUOM
               </span>
             </div>
@@ -127,27 +127,29 @@ export default function Register() {
         </div>
       </header>
 
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-[420px] bg-white rounded-2xl border border-gray-100 p-8 shadow-lg">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:px-6 sm:py-24">
+        <div className="w-full max-w-[420px] bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-lg">
           {/* Título */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold mb-2 text-[#35426A]">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-xl sm:text-2xl font-bold mb-2 text-[#35426A]">
               {t.register.createAccount}
             </h1>
-            <p className="text-[#7286B2] text-sm">
+            <p className="text-sm sm:text-base text-[#7286B2]">
               {t.register.startJourney}
             </p>
           </div>
 
           {/* Mensagem de erro */}
           {error && (
-            <div className="mb-6 text-red-500 text-center text-sm">{error}</div>
+            <div className="mb-6 text-red-500 text-center text-sm">
+              {error}
+            </div>
           )}
           
           {/* Formulário */}
-          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" autoComplete="off">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-[#35426A] mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-[#35426A] mb-1.5">
                 {t.register.name}
               </label>
               <input
@@ -156,13 +158,13 @@ export default function Register() {
                 name="name"
                 required
                 autoComplete="off"
-                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
                 placeholder={t.register.namePlaceholder}
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#35426A] mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-[#35426A] mb-1.5">
                 {t.register.email}
               </label>
               <input
@@ -171,13 +173,13 @@ export default function Register() {
                 name="email"
                 required
                 autoComplete="off"
-                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
                 placeholder={t.register.emailPlaceholder}
               />
             </div>
 
             <div>
-              <label htmlFor="region" className="block text-sm font-medium text-[#35426A] mb-2">
+              <label htmlFor="region" className="block text-sm font-medium text-[#35426A] mb-1.5">
                 Region
               </label>
               <select
@@ -185,7 +187,7 @@ export default function Register() {
                 name="region"
                 value={region}
                 onChange={(e) => setRegion(e.target.value as Region)}
-                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
               >
                 {Object.entries(REGION_NAMES).map(([key, name]) => (
                   <option key={key} value={key}>
@@ -196,7 +198,7 @@ export default function Register() {
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#35426A] mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-[#35426A] mb-1.5">
                 {t.register.password}
               </label>
               <input
@@ -205,13 +207,13 @@ export default function Register() {
                 name="password"
                 required
                 autoComplete="new-password"
-                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
                 placeholder={t.register.passwordPlaceholder}
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#35426A] mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#35426A] mb-1.5">
                 {t.register.confirmPassword}
               </label>
               <input
@@ -220,14 +222,14 @@ export default function Register() {
                 name="confirmPassword"
                 required
                 autoComplete="new-password"
-                className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
                 placeholder={t.register.confirmPasswordPlaceholder}
               />
             </div>
 
             <button 
               type="submit" 
-              className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#35426A] hover:bg-[#7286B2] rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#35426A] hover:bg-[#7286B2] rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-6"
               disabled={isSubmitting}
             >
               {isSubmitting ? t.register.signingUp : t.register.signUp}
