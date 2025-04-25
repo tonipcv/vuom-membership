@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { getStripe } from '@/lib/stripe';
-import { PricingCard } from './PricingCard';
+import { PlansList } from './PlansList';
 import { PRICE_IDS, PRICE_VALUES, REGION_CURRENCIES, CURRENCY_SYMBOLS } from '@/lib/prices';
 import { Navigation } from './Navigation';
 import { translations } from '@/lib/i18n';
@@ -72,13 +72,13 @@ export default function PlansInterface({ userRegion = 'OTHER', userId }: PlansIn
     await signOut({ redirect: true, callbackUrl: '/login' });
   };
 
-  const handlePlanSelection = async (planName: string) => {
+  const handlePlanSelection = async (plan: { name: string }) => {
     try {
       setIsLoading(true);
       setError(null);
 
       const currency = REGION_CURRENCIES[userRegion];
-      const priceId = planName === t.plans.basic
+      const priceId = plan.name === t.plans.basic
         ? PRICE_IDS.INICIANTE[currency]
         : PRICE_IDS.PRO[currency];
       
@@ -165,17 +165,11 @@ export default function PlansInterface({ userRegion = 'OTHER', userId }: PlansIn
           </div>
 
           {/* Cards dos planos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {plans.map((plan) => (
-              <PricingCard
-                key={plan.name}
-                {...plan}
-                onClick={() => handlePlanSelection(plan.name)}
-                isLoading={isLoading}
-                t={t}
-              />
-            ))}
-          </div>
+          <PlansList
+            plans={plans}
+            handlePlanSelection={handlePlanSelection}
+            t={t}
+          />
         </div>
       </div>
 
