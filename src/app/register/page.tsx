@@ -1,25 +1,34 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from "next-auth/react";
 import { ArrowRight } from 'lucide-react';
 import { REGION_NAMES, type Region } from '@/lib/prices';
 import { detectUserRegion } from '@/lib/geo';
+import { translations } from '@/lib/i18n';
 
 export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [region, setRegion] = useState<Region>('OTHER');
+  const [locale, setLocale] = useState('pt-BR');
   const router = useRouter();
 
-  // Detectar região do usuário quando o componente montar
   useEffect(() => {
+    // Detecta região e idioma do usuário quando o componente montar
     const detectedRegion = detectUserRegion();
     setRegion(detectedRegion);
+
+    const browserLang = navigator.language;
+    const supportedLocale = translations[browserLang] ? browserLang : 
+                          browserLang.startsWith('pt') ? 'pt-BR' :
+                          browserLang.startsWith('es') ? 'es' : 'en';
+    setLocale(supportedLocale);
   }, []);
+
+  const t = translations[locale];
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,8 +41,27 @@ export default function Register() {
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirmPassword') as string;
 
+    // Validações
+    if (!name || !email || !password || !confirmPassword) {
+      setError(t.register.errors.requiredFields);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError(t.register.errors.invalidEmail);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError(t.register.errors.weakPassword);
+      setIsSubmitting(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t.register.errors.passwordsDoNotMatch);
       setIsSubmitting(false);
       return;
     }
@@ -55,6 +83,10 @@ export default function Register() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 409) {
+          setError(t.register.errors.emailInUse);
+          return;
+        }
         throw new Error(data.error || 'Error during registration');
       }
 
@@ -100,10 +132,10 @@ export default function Register() {
           {/* Título */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold mb-2 text-[#35426A]">
-              Create Account
+              {t.register.createAccount}
             </h1>
             <p className="text-[#7286B2] text-sm">
-              Join us and start your transformation
+              {t.register.startJourney}
             </p>
           </div>
 
@@ -116,7 +148,7 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-[#35426A] mb-2">
-                Full Name
+                {t.register.name}
               </label>
               <input
                 type="text"
@@ -125,13 +157,13 @@ export default function Register() {
                 required
                 autoComplete="off"
                 className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
-                placeholder="Enter your full name"
+                placeholder={t.register.namePlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-[#35426A] mb-2">
-                Email
+                {t.register.email}
               </label>
               <input
                 type="email"
@@ -140,7 +172,7 @@ export default function Register() {
                 required
                 autoComplete="off"
                 className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
-                placeholder="Enter your email"
+                placeholder={t.register.emailPlaceholder}
               />
             </div>
 
@@ -165,7 +197,7 @@ export default function Register() {
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-[#35426A] mb-2">
-                Password
+                {t.register.password}
               </label>
               <input
                 type="password"
@@ -174,13 +206,13 @@ export default function Register() {
                 required
                 autoComplete="new-password"
                 className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
-                placeholder="Create a password"
+                placeholder={t.register.passwordPlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#35426A] mb-2">
-                Confirm Password
+                {t.register.confirmPassword}
               </label>
               <input
                 type="password"
@@ -189,7 +221,7 @@ export default function Register() {
                 required
                 autoComplete="new-password"
                 className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#35426A]/20 focus:border-[#35426A] transition-all duration-200 text-[#35426A]"
-                placeholder="Confirm your password"
+                placeholder={t.register.confirmPasswordPlaceholder}
               />
             </div>
 
@@ -198,19 +230,19 @@ export default function Register() {
               className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#35426A] hover:bg-[#7286B2] rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Creating Account...' : 'Create Account'}
+              {isSubmitting ? t.register.signingUp : t.register.signUp}
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
 
           {/* Link para login */}
           <p className="mt-6 text-center text-sm text-[#7286B2]">
-            Already have an account?{' '}
+            {t.register.alreadyHaveAccount}{' '}
             <Link 
               href="/login" 
               className="text-[#35426A] hover:text-[#7286B2] transition-colors duration-200 font-medium"
             >
-              Sign In
+              {t.register.signIn}
             </Link>
           </p>
         </div>
