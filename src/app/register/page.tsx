@@ -8,7 +8,6 @@ import { ArrowRight } from 'lucide-react';
 import { REGION_NAMES, type Region } from '@/lib/prices';
 import { detectUserRegion } from '@/lib/geo';
 import { translations } from '@/lib/i18n';
-import { ensureAndTrackContact } from '@/lib/analytics';
 
 export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,9 +89,6 @@ export default function Register() {
         }
         throw new Error(data.error || 'Error during registration');
       }
-
-      // Track the user's contact information
-      ensureAndTrackContact({ email });
 
       // Fazer login automaticamente após o registro
       const result = await signIn('credentials', {

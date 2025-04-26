@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { ensureAndTrackContact } from '@/lib/analytics';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -35,13 +34,6 @@ function PaymentSuccessContent() {
 
         if (!response.ok) {
           throw new Error(data.error || 'Failed to get session details');
-        }
-
-        // Track the customer's contact information
-        if (data.customer_email) {
-          ensureAndTrackContact({
-            email: data.customer_email
-          });
         }
 
         // Track purchase event with Facebook Pixel
