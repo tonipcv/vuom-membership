@@ -8,7 +8,7 @@ import { PlansList } from './PlansList';
 import { PRICE_IDS, PRICE_VALUES, REGION_CURRENCIES, CURRENCY_SYMBOLS } from '@/lib/prices';
 import { Navigation } from './Navigation';
 import { translations } from '@/lib/i18n';
-import { trackAddToCart } from '@/lib/analytics';
+import { event as fbEvent } from '@/lib/fpixel';
 
 interface PlansInterfaceProps {
   userRegion?: 'US' | 'UK' | 'EU' | 'BR' | 'OTHER';
@@ -92,14 +92,13 @@ export default function PlansInterface({ userRegion = 'OTHER', userId }: PlansIn
         ? PRICE_VALUES.INICIANTE[currency]
         : PRICE_VALUES.PRO[currency];
 
-      // Track the plan selection with Triple Whale
-      trackAddToCart({
-        item: priceId,
-        q: 1,
-        v: priceId,
-        planName: plan.name,
-        planPrice: planPrice,
-        currency: currency
+      // Track InitiateCheckout with Facebook Pixel
+      fbEvent('InitiateCheckout', {
+        currency: currency,
+        value: planPrice,
+        content_type: 'product',
+        content_name: plan.name,
+        content_ids: [priceId]
       });
 
       const response = await fetch('/api/create-checkout-session', {

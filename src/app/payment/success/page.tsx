@@ -6,12 +6,21 @@ import { useRouter } from 'next/navigation';
 import { ensureAndTrackContact } from '@/lib/analytics';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { FaWhatsapp } from 'react-icons/fa';
+import { event as fbEvent } from '@/lib/fpixel';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const whatsappNumber = "5511975873111";
+  const whatsappMessage = "Olá! Acabei de assinar o programa e gostaria de mais informações.";
+
+  const handleWhatsAppClick = () => {
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(url, '_blank');
+  };
 
   useEffect(() => {
     async function getSessionDetails() {
@@ -34,6 +43,12 @@ function PaymentSuccessContent() {
             email: data.customer_email
           });
         }
+
+        // Track purchase event with Facebook Pixel
+        fbEvent('Purchase', {
+          currency: 'BRL',
+          value: data.amount_total / 100, // Convert from cents to real value
+        });
 
         // Redirect to dashboard after a short delay
         setTimeout(() => {
@@ -92,6 +107,15 @@ function PaymentSuccessContent() {
           <p className="text-gray-600 mb-8">
             Obrigado por assinar! Você será redirecionado para o dashboard em alguns segundos...
           </p>
+          
+          <button
+            onClick={handleWhatsAppClick}
+            className="w-full flex items-center justify-center gap-2 bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors mb-4"
+          >
+            <FaWhatsapp className="text-xl" />
+            <span>Falar no WhatsApp</span>
+          </button>
+
           <div className="animate-pulse">
             <div className="h-2 bg-teal-200 rounded"></div>
           </div>

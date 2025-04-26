@@ -1,4 +1,4 @@
-export const FB_PIXEL_ID = '1203701254882500'
+export const FB_PIXEL_ID = '1338006007492580'
 
 type FbqFunction = {
   (action: 'init', pixelId: string): void;
