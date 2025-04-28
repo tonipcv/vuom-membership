@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Verifica acesso à página de planos
-  if (pathname === '/planos') {
+  if (pathname === '/trial') {
     if (token?.isPremium) {
       console.log('Middleware - Usuário premium tentando acessar planos');
       return NextResponse.redirect(new URL('/series-restrito', request.url));
@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
 
   // Redireciona a rota raiz (/) baseado no status premium
   if (pathname === '/') {
-    return NextResponse.redirect(new URL(token?.isPremium ? '/series-restrito' : '/planos', request.url));
+    return NextResponse.redirect(new URL(token?.isPremium ? '/series-restrito' : '/trial', request.url));
   }
 
   return NextResponse.next();

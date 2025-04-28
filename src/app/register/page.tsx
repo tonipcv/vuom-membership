@@ -132,10 +132,10 @@ export default function Register() {
           {/* Título */}
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-xl sm:text-2xl font-bold mb-2 text-[#35426A]">
-              {t.register.createAccount}
+              {t.register.title}
             </h1>
             <p className="text-sm sm:text-base text-[#7286B2]">
-              {t.register.startJourney}
+              {t.register.description}
             </p>
           </div>
 
