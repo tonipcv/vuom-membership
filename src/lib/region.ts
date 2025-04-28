@@ -1,8 +1,9 @@
 import { SupportedCurrency } from './constants';
+import { Region } from './prices';
 
 // List of regions we support
-export const SUPPORTED_REGIONS = ['US', 'BR', 'ES', 'PT'] as const;
-export type SupportedRegion = typeof SUPPORTED_REGIONS[number];
+export const SUPPORTED_REGIONS = ['US', 'UK', 'EU', 'BR', 'OTHER'] as const;
+export type SupportedRegion = Region;
 
 /**
  * Detects user's region based on browser's language and timezone
@@ -16,13 +17,13 @@ export function detectUserRegion(headers?: Headers): SupportedRegion {
       if (acceptLanguage) {
         const lang = acceptLanguage.split(',')[0].toUpperCase();
         if (lang.startsWith('PT')) {
-          return lang.includes('BR') ? 'BR' : 'PT';
+          return 'BR';
         }
         if (lang.startsWith('ES')) {
-          return 'ES';
+          return 'EU';
         }
         if (lang.startsWith('EN')) {
-          return 'US';
+          return lang.includes('GB') ? 'UK' : 'US';
         }
       }
       return 'US';
@@ -33,30 +34,33 @@ export function detectUserRegion(headers?: Headers): SupportedRegion {
       const browserLang = navigator.language.toUpperCase();
       
       if (browserLang.startsWith('PT')) {
-        return browserLang.includes('BR') ? 'BR' : 'PT';
+        return 'BR';
       }
       if (browserLang.startsWith('ES')) {
-        return 'ES';
+        return 'EU';
       }
       if (browserLang.startsWith('EN')) {
-        return 'US';
+        return browserLang.includes('GB') ? 'UK' : 'US';
       }
 
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (timezone.includes('America/Sao_Paulo')) {
         return 'BR';
       }
-      if (timezone.includes('Europe/Madrid')) {
-        return 'ES';
+      if (timezone.includes('Europe/')) {
+        return 'EU';
       }
-      if (timezone.includes('Europe/Lisbon')) {
-        return 'PT';
+      if (timezone.includes('America/')) {
+        return 'US';
+      }
+      if (timezone.includes('Europe/London')) {
+        return 'UK';
       }
     }
 
-    return 'US';
+    return 'OTHER';
   } catch (error) {
-    // If anything fails, return US as default
-    return 'US';
+    console.error('Error detecting region:', error);
+    return 'OTHER';
   }
 } 
