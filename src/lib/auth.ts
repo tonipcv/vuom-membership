@@ -51,7 +51,8 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
   pages: {
     signIn: '/login',
@@ -78,4 +79,8 @@ export const authOptions: NextAuthOptions = {
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
+  // Habilitar JSON Web Tokens para uso com React Native
+  jwt: {
+    maxAge: 60 * 60 * 24 * 30, // 30 dias
+  }
 } 
