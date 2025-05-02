@@ -3,16 +3,35 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { sendEmail } from '@/lib/email'
 
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    }
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const { token, password } = await request.json()
 
     if (!token || !password) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Token e senha são obrigatórios' }),
+      return NextResponse.json(
+        { error: 'Token e senha são obrigatórios' },
         { 
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
         }
       )
     }
@@ -27,11 +46,16 @@ export async function POST(request: Request) {
     })
 
     if (!user) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Token inválido ou expirado' }),
+      return NextResponse.json(
+        { error: 'Token inválido ou expirado' },
         { 
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST,OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
         }
       )
     }
@@ -58,21 +82,31 @@ export async function POST(request: Request) {
       `
     })
 
-    return new NextResponse(
-      JSON.stringify({ success: true }),
+    return NextResponse.json(
+      { success: true },
       { 
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST,OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
       }
     )
 
   } catch (error) {
     console.error('Error:', error)
-    return new NextResponse(
-      JSON.stringify({ error: 'Erro ao alterar senha' }),
+    return NextResponse.json(
+      { error: 'Erro ao alterar senha' },
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST,OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
       }
     )
   }

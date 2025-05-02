@@ -4,7 +4,7 @@ Este guia explica como integrar seu aplicativo React Native com a API Vuom.
 
 ## Endpoints de Autenticação
 
-### Login
+### Login Mobile (Simplificado)
 
 **Endpoint**: `https://app.vuom.live/api/auth/mobile/signin`
 **Método**: POST
@@ -29,7 +29,116 @@ Este guia explica como integrar seu aplicativo React Native com a API Vuom.
 }
 ```
 
-### Exemplo de Implementação em React Native
+### Token CSRF
+
+**Endpoint**: `https://app.vuom.live/api/auth/csrf`
+**Método**: GET
+
+**Resposta**:
+```json
+{
+  "csrfToken": "token-csrf"
+}
+```
+
+### Login com Credenciais
+
+**Endpoint**: `https://app.vuom.live/api/auth/callback/credentials`
+**Método**: POST
+**Corpo**:
+```json
+{
+  "email": "seu-email@exemplo.com",
+  "password": "sua-senha",
+  "csrfToken": "token-obtido-da-requisicao-csrf",
+  "redirect": true,
+  "callbackUrl": "/dashboard"
+}
+```
+
+### Obter Sessão
+
+**Endpoint**: `https://app.vuom.live/api/auth/session`
+**Método**: GET
+
+**Resposta**:
+```json
+{
+  "user": {
+    "id": "user-id",
+    "name": "Nome do Usuário",
+    "email": "email@exemplo.com",
+    "isPremium": false
+  }
+}
+```
+
+### Logout
+
+**Endpoint**: `https://app.vuom.live/api/auth/signout`
+**Método**: POST
+**Corpo**:
+```json
+{
+  "callbackUrl": "/"
+}
+```
+
+### Registro
+
+**Endpoint**: `https://app.vuom.live/api/auth/register`
+**Método**: POST
+**Corpo**:
+```json
+{
+  "name": "Nome Completo",
+  "email": "seu-email@exemplo.com",
+  "password": "sua-senha",
+  "region": "BR"
+}
+```
+
+**Resposta**:
+```json
+{
+  "user": {
+    "id": "user-id",
+    "name": "Nome Completo",
+    "email": "seu-email@exemplo.com",
+    "region": "BR"
+  }
+}
+```
+
+### Recuperação de Senha
+
+**Endpoint**: `https://app.vuom.live/api/auth/forgot-password`
+**Método**: POST
+**Corpo**:
+```json
+{
+  "email": "seu-email@exemplo.com"
+}
+```
+
+### Redefinir Senha
+
+**Endpoint**: `https://app.vuom.live/api/auth/reset-password`
+**Método**: POST
+**Corpo**:
+```json
+{
+  "token": "token-de-recuperacao",
+  "password": "nova-senha"
+}
+```
+
+### Verificar Email
+
+**Endpoint**: `https://app.vuom.live/api/auth/verify-email?token=token-de-verificacao`
+**Método**: GET
+
+## Exemplo de Implementação em React Native
 
 ```javascript
 import axios from 'axios';
@@ -41,6 +150,7 @@ const API_URL = 'https://app.vuom.live/api';
 const api = axios.create({
   baseURL: API_URL,
   headers: {
+    'Accept': 'application/json',
     'Content-Type': 'application/json',
   },
 });
@@ -60,6 +170,8 @@ api.interceptors.request.use(
 // Função de login
 export const login = async (email, password) => {
   try {
+    console.log('Configuração do axios:', JSON.stringify(api.defaults));
+    
     const response = await api.post('/auth/mobile/signin', {
       email,
       password,
@@ -90,8 +202,57 @@ export const checkAuth = async () => {
 
 // Função de logout
 export const logout = async () => {
-  await AsyncStorage.removeItem('authToken');
-  await AsyncStorage.removeItem('userData');
+  try {
+    // Opcional: notificar o servidor sobre o logout
+    await api.post('/auth/signout');
+  } catch (error) {
+    console.error('Erro ao fazer logout no servidor:', error);
+  } finally {
+    // Mesmo se falhar no servidor, limpar dados locais
+    await AsyncStorage.removeItem('authToken');
+    await AsyncStorage.removeItem('userData');
+  }
+};
+
+// Função para registro
+export const register = async (name, email, password, region = 'BR') => {
+  try {
+    const response = await api.post('/auth/register', {
+      name,
+      email,
+      password,
+      region,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro no registro:', error);
+    throw error;
+  }
+};
+
+// Função para recuperação de senha
+export const forgotPassword = async (email) => {
+  try {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  } catch (error) {
+    console.error('Erro na recuperação de senha:', error);
+    throw error;
+  }
+};
+
+// Função para redefinir senha
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await api.post('/auth/reset-password', {
+      token,
+      password: newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao redefinir senha:', error);
+    throw error;
+  }
 };
 ```
 
@@ -101,8 +262,9 @@ export const logout = async () => {
 
 Se você estiver recebendo erros de CORS:
 
-1. Verifique se está usando o endpoint correto (note o prefixo `/mobile/` para APIs específicas para dispositivos móveis)
-2. Entre em contato com o administrador do sistema
+1. Verifique se está usando HTTPS e não HTTP
+2. Verifique se está usando o endpoint correto (note o prefixo `/auth/mobile/` para APIs específicas para dispositivos móveis)
+3. Entre em contato com o administrador do sistema
 
 ### Erros de Rede
 
