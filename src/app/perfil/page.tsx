@@ -26,7 +26,10 @@ export default function Perfil() {
 
   const handleLogout = async () => {
     try {
-      await signOut({ callbackUrl: '/' })
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true
+      })
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }

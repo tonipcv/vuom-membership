@@ -55,6 +55,10 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+    signOut: '/login',
+    error: '/login',
+    verifyRequest: '/verify-email',
+    newUser: '/register'
   },
   debug: process.env.NODE_ENV === 'development',
   callbacks: {
